@@ -1,23 +1,24 @@
 package nl.wdudokvanheel.neural.neat.service;
 
-import nl.wdudokvanheel.neural.neat.model.NeuronGene;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import nl.wdudokvanheel.neural.neat.model.NeuronGene;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Service to generate and retrieve innovation ids for genome connections and nodes
  */
 public class InnovationService {
-    private HashMap<Integer, Integer> inputNeuronIds = new HashMap<>();
-    private HashMap<Integer, Integer> outputNeuronIds = new HashMap<>();
-    private HashMap<Integer, Integer> hiddenNeuronId = new HashMap<>();
+    private final AtomicInteger innovation = new AtomicInteger();
 
-    private Table<Integer, Integer, Integer> connectionIds = HashBasedTable.create();
+    // maps are now concurrent so we don’t need explicit synchronisation
+    private final ConcurrentHashMap<Integer, Integer> inputNeuronIds = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, Integer> outputNeuronIds = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, Integer> hiddenNeuronIds = new ConcurrentHashMap<>();
 
-    private int neuronCounter = 0;
-    private int connectionCounter = 0;
+    private final Table<Integer, Integer, Integer> connectionIds = HashBasedTable.create();
 
     /**
      * Get the innovation id for a new hidden neuron
@@ -25,19 +26,12 @@ public class InnovationService {
      * @param connectionId The innovation id of the connection the neuron replaces
      */
     public int getNeuronInnovationId(int connectionId) {
-        Integer id = hiddenNeuronId.get(connectionId);
-        if (id != null) {
-            return id;
-        }
-
-        id = getNextNeuronInnovationId();
-        hiddenNeuronId.put(connectionId, id);
-        return id;
+        return hiddenNeuronIds.computeIfAbsent(connectionId,
+                k -> nextInnovation());
     }
 
-
     public boolean doesNeuronIdExist(int connectionId) {
-        return hiddenNeuronId.get(connectionId) != null;
+        return hiddenNeuronIds.containsKey(connectionId);
     }
 
     /**
@@ -46,15 +40,15 @@ public class InnovationService {
      * @param sourceNode Innovation id of the source node
      * @param targetNode Innovation id of the target node
      */
-    public int getConnectionInnovationId(int sourceNode, int targetNode) {
-        Integer id = connectionIds.get(sourceNode, targetNode);
-        if (id != null) {
+    public int getConnectionInnovationId(int src, int tgt) {
+        synchronized (connectionIds) {                 // HashBasedTable isn’t thread-safe
+            Integer id = connectionIds.get(src, tgt);
+            if (id == null) {
+                id = nextInnovation();
+                connectionIds.put(src, tgt, id);
+            }
             return id;
         }
-
-        id = getNextConnectionInnovationId();
-        connectionIds.put(sourceNode, targetNode, id);
-        return id;
     }
 
     /**
@@ -63,14 +57,7 @@ public class InnovationService {
      * @param index Index of the input node
      */
     public int getInputNodeInnovationId(int index) {
-        Integer id = inputNeuronIds.get(index);
-        if (id != null) {
-            return id;
-        }
-
-        id = getNextNeuronInnovationId();
-        inputNeuronIds.put(index, id);
-        return id;
+        return inputNeuronIds.computeIfAbsent(index, k -> nextInnovation());
     }
 
     /**
@@ -79,25 +66,14 @@ public class InnovationService {
      * @param index Index of the output node
      */
     public int getOutputNodeInnovationId(int index) {
-        Integer id = outputNeuronIds.get(index);
-        if (id != null) {
-            return id;
-        }
-
-        id = getNextNeuronInnovationId();
-        outputNeuronIds.put(index, id);
-        return id;
-    }
-
-    private int getNextNeuronInnovationId() {
-        return ++neuronCounter;
-    }
-
-    private int getNextConnectionInnovationId() {
-        return ++connectionCounter;
+        return outputNeuronIds.computeIfAbsent(index, k -> nextInnovation());
     }
 
     // ******* Helper & wrapper methods *******
+
+    private int nextInnovation() {
+        return innovation.incrementAndGet();           // single global counter
+    }
 
     public int getConnectionInnovationId(NeuronGene source, NeuronGene target) {
         return getConnectionInnovationId(source.getInnovationId(), target.getInnovationId());
