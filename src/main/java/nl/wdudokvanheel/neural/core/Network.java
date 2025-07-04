@@ -7,21 +7,21 @@ import nl.wdudokvanheel.neural.core.neuron.OutputNeuron;
 import nl.wdudokvanheel.neural.neat.model.ConnectionGene;
 import nl.wdudokvanheel.neural.neat.model.Genome;
 import nl.wdudokvanheel.neural.neat.model.NeuronGene;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Network {
-    private Logger logger = LoggerFactory.getLogger(Network.class);
-
     public static int ID_COUNTER = 0;
+    public final int id;
 
-    public int id;
-    public List<InputNeuron> inputNeurons = new ArrayList<>();
-    public List<Neuron> hiddenNeurons = new ArrayList<>();
-    public List<OutputNeuron> outputNeurons = new ArrayList<>();
+    private final Map<Integer, Neuron> neuronsById = new HashMap<>();
+
+    public final List<InputNeuron> inputNeurons = new ArrayList<>();
+    public final List<Neuron> hiddenNeurons = new ArrayList<>();
+    public final List<OutputNeuron> outputNeurons = new ArrayList<>();
 
     public Network() {
         id = ID_COUNTER++;
@@ -29,20 +29,19 @@ public class Network {
 
     public Network(Genome genome) {
         this();
-
-        //Add all genes
         for (NeuronGene gene : genome.getNeurons()) {
             switch (gene.getType()) {
-                case INPUT -> inputNeurons.add(new InputNeuron(gene.getInnovationId()));
-                case HIDDEN -> hiddenNeurons.add(new Neuron(gene.getInnovationId(), gene.getLayer()));
-                case OUTPUT -> outputNeurons.add(new OutputNeuron(gene.getInnovationId()));
+                case INPUT -> addNeuron(new InputNeuron(gene.getInnovationId()));
+                case HIDDEN -> addNeuron(new Neuron(gene.getInnovationId(), gene.getLayer()));
+                case OUTPUT -> addNeuron(new OutputNeuron(gene.getInnovationId()));
             }
         }
 
         //Add all connections
         for (ConnectionGene gene : genome.getConnections()) {
-            if (!gene.isEnabled())
+            if (!gene.isEnabled()) {
                 continue;
+            }
             Neuron source = getNeuronById(gene.getSource());
             Neuron target = getNeuronById(gene.getTarget());
             target.addConnection(source, gene.getWeight());
@@ -50,13 +49,8 @@ public class Network {
     }
 
     public void setInput(double... values) {
-        for (int i = 0; i < values.length; i++) {
-            InputNeuron neuron = inputNeurons.get(i);
-            if (neuron == null) {
-                logger.warn("Input not found: {}", i);
-                break;
-            }
-            neuron.setValue(values[i]);
+        for (int i = 0; i < values.length && i < inputNeurons.size(); i++) {
+            inputNeurons.get(i).setValue(values[i]);
         }
     }
 
@@ -68,70 +62,12 @@ public class Network {
         return neurons;
     }
 
-    public List<Neuron> getAllNeuronsWithInputConnections() {
-        ArrayList<Neuron> neurons = new ArrayList<>();
-        neurons.addAll(hiddenNeurons);
-        neurons.addAll(outputNeurons);
-        return neurons;
-    }
-
-    public void resetNeuronValues() {
-        getAllNeurons().forEach(neuron -> neuron.resetValue());
-    }
-
-    public InputNeuron createInputNeuron() {
-        InputNeuron neuron = new InputNeuron(inputNeurons.size());
-        inputNeurons.add(neuron);
-        return neuron;
-    }
-
-    public void createInputNeurons(int neurons) {
-        for (int i = 0; i < neurons; i++) {
-            createInputNeuron();
-        }
-    }
-
-    public Neuron createHiddenNeuron() {
-        Neuron neuron = new Neuron(hiddenNeurons.size());
-        hiddenNeurons.add(neuron);
-        return neuron;
-    }
-
-    public void createHiddenNeurons(int neurons) {
-        for (int i = 0; i < neurons; i++) {
-            createHiddenNeuron();
-        }
-    }
-
-    public OutputNeuron createOutputNeuron() {
-        OutputNeuron neuron = new OutputNeuron(outputNeurons.size());
-        outputNeurons.add(neuron);
-        return neuron;
-    }
-
-    public void createOutputNeurons(int neurons) {
-        for (int i = 0; i < neurons; i++) {
-            createOutputNeuron();
-        }
-    }
-
-
     public double[] getOutputs() {
-        double[] output = new double[outputNeurons.size()];
-        for (int i = 0; i < output.length; i++) {
-            output[i] = getOutput(i);
+        double[] out = new double[outputNeurons.size()];
+        for (int i = 0; i < out.length; i++) {
+            out[i] = outputNeurons.get(i).getValue();
         }
-
-        return output;
-    }
-
-    public Neuron getNeuronById(int id) {
-        for (Neuron neuron : getAllNeurons()) {
-            if (neuron.getId() == id) {
-                return neuron;
-            }
-        }
-        return null;
+        return out;
     }
 
     public double getOutput(int index) {
@@ -142,63 +78,72 @@ public class Network {
         return getOutput(0);
     }
 
-    public Neuron getInputNeuron(int index) {
+    public InputNeuron getInputNeuron(int index) {
         return inputNeurons.get(index);
     }
 
-    public Neuron getOutputNeuron(int index) {
+    public OutputNeuron getOutputNeuron(int index) {
         return outputNeurons.get(index);
     }
 
     public Network clone() {
-        Network network = new Network();
-        network.createInputNeurons(this.inputNeurons.size());
-        network.createHiddenNeurons(this.hiddenNeurons.size());
-        network.createOutputNeurons(this.outputNeurons.size());
-
-        List<Neuron> source = getAllNeurons();
-        List<Neuron> target = network.getAllNeurons();
-
-        for (int i = 0; i < source.size(); i++) {
-            Neuron sourceNeuron = source.get(i);
-            Neuron targetNeuron = target.get(i);
-
-            for (int j = 0; j < sourceNeuron.inputs.size(); j++) {
-                Connection sourceConnection = sourceNeuron.inputs.get(j);
-                targetNeuron.addConnection(network.getNeuronByName(sourceConnection.source.toString()), sourceConnection.weight);
-            }
+        Network clone = new Network();
+        // clone neurons
+        for (InputNeuron n : inputNeurons) {
+            clone.addNeuron(new InputNeuron(n.getId()));
+        }
+        for (Neuron n : hiddenNeurons) {
+            clone.addNeuron(new Neuron(n.getId(), n.layer));
+        }
+        for (OutputNeuron n : outputNeurons) {
+            clone.addNeuron(new OutputNeuron(n.getId()));
         }
 
-        return network;
+        // clone connections
+        for (Neuron n : neuronsById.values()) {
+            for (Connection c : n.inputs) {
+                Neuron src = clone.getNeuronById(c.source.getId());
+                Neuron tgt = clone.getNeuronById(n.getId());
+                tgt.addConnection(src, c.weight);
+            }
+        }
+        return clone;
+    }
+
+    public Neuron getNeuronById(int id) {
+        return neuronsById.get(id);
     }
 
     public Neuron getNeuronByName(String name) {
-        int id = Integer.parseInt(name.split("#")[1]);
+        int id = Integer.parseInt(name.split("#")[1].trim());
+        return getNeuronById(id);
+    }
 
-        if (name.toLowerCase().startsWith("neuron"))
-            return hiddenNeurons.get(id);
-
-        if (name.toLowerCase().startsWith("input"))
-            return inputNeurons.get(id);
-
-        if (name.toLowerCase().startsWith("output"))
-            return outputNeurons.get(id);
-
-        return null;
+    public void resetNeuronValues() {
+        neuronsById.values().forEach(Neuron::resetValue);
     }
 
     public int getLayers() {
-        int max = 0;
-        for (Neuron neuron : hiddenNeurons) {
-            if (neuron.layer > max) {
-                max = neuron.layer;
-            }
-        }
-        return max;
+        return hiddenNeurons.stream().mapToInt(n -> n.layer).max().orElse(0);
     }
 
     @Override
     public String toString() {
         return "Network #" + id;
+    }
+
+    private void addNeuron(InputNeuron n) {
+        inputNeurons.add(n);
+        neuronsById.put(n.getId(), n);
+    }
+
+    private void addNeuron(OutputNeuron n) {
+        outputNeurons.add(n);
+        neuronsById.put(n.getId(), n);
+    }
+
+    private void addNeuron(Neuron n) {
+        hiddenNeurons.add(n);
+        neuronsById.put(n.getId(), n);
     }
 }
