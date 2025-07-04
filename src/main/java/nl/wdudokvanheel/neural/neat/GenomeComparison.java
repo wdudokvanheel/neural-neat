@@ -62,10 +62,7 @@ public class GenomeComparison {
         excessGenes = excessNeurons + excessConnections;
         disjointGenes = disjointNeurons + disjointConnections;
 
-        int n = totalGenes;
-//        if (totalGenes < 20) {
-            n = 1;
-//        }
+        int n = Math.max(totalGenes, 1);
 
         distance = (excessCoefficient * excessGenes / n) + (disjointCoefficient * disjointGenes / n) + (weightCoefficient * averageWeightDifference);
     }

@@ -15,7 +15,7 @@ public class NeatConfiguration {
     public double initialLinkActiveProbability = 0.25;
 
     //Mutation chances
-    public boolean multipleMutationsPerGenome = false;
+    public boolean multipleMutationsPerGenome = true;
     public double mutateAddConnectionProbability = 0.05;
     public double mutateAddNeuronProbability = 0.03;
     public double mutateToggleConnectionProbability = 0.01;
