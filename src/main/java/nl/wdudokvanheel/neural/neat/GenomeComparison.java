@@ -20,7 +20,7 @@ public class GenomeComparison {
     //C2 in the NEAT paper
     private double disjointCoefficient = 1.0;
     //C3 in the NEAT paper
-    private double weightCoefficient = 2.0;
+    private double weightCoefficient = 0.5;
 
     private int totalGenes = 0;
 
@@ -156,7 +156,7 @@ public class GenomeComparison {
             }
         }
 
-        averageWeightDifference = totalWeightDifference / matchingConnections;
+        averageWeightDifference = matchingConnections == 0 ? 0 : totalWeightDifference / matchingConnections;
     }
 
     private int getMaxNeuronInnovationId(Genome genome) {

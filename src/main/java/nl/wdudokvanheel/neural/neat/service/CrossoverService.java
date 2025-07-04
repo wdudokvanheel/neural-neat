@@ -54,7 +54,7 @@ public class CrossoverService {
             int asexual = (int) Math.round(desired * context.configuration.reproduceWithoutCrossover);
             int sexual = desired - asexual;
 
-            logger.debug("Creating {} offspring ({} asexual) for species {}", sexual + asexual, asexual, species);
+//            logger.debug("Creating {} offspring ({} asexual) for species {}", sexual + asexual, asexual, species);
 
             creatures.addAll(createOffspringWithoutCrossover(context, species, asexual));
             creatures.addAll(createOffspring(context, species, sexual));
@@ -127,7 +127,7 @@ public class CrossoverService {
                 continue;
             }
 
-            totalFitness += iter.lastFitness;
+            totalFitness += iter.getFitness();
         }
 
         if (totalFitness <= 0) {
@@ -149,7 +149,7 @@ public class CrossoverService {
                 continue;
             }
 
-            count += iter.lastFitness;
+            count += iter.getFitness();
             if (count >= target) {
                 return iter;
             }

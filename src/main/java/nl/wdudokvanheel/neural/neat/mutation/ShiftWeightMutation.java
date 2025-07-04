@@ -4,7 +4,7 @@ import nl.wdudokvanheel.neural.neat.model.ConnectionGene;
 import nl.wdudokvanheel.neural.neat.model.Genome;
 
 public class ShiftWeightMutation extends AbstractMutation {
-    private double perturbationPower;
+    private final double perturbationPower;
 
     public ShiftWeightMutation(double perturbationPower) {
         this.perturbationPower = perturbationPower;
@@ -16,10 +16,8 @@ public class ShiftWeightMutation extends AbstractMutation {
             if (!connection.isEnabled()) {
                 continue;
             }
-
-            double perturbation = getRandomGaussian(2);
-            perturbation *= perturbationPower;
-            connection.setWeight(connection.getWeight() + perturbation);
+            double p = getRandomGaussian(2) * perturbationPower;
+            connection.setWeight(WeightUtil.clamp(connection.getWeight() + p));
         }
     }
 }

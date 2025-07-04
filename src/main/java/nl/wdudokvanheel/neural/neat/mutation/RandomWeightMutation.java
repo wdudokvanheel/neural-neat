@@ -4,6 +4,8 @@ import nl.wdudokvanheel.neural.neat.model.ConnectionGene;
 import nl.wdudokvanheel.neural.neat.model.Genome;
 
 public class RandomWeightMutation extends AbstractMutation {
+    private static final double SIGMA = 0.5;
+
     @Override
     public void mutate(Genome genome) {
         for (ConnectionGene connection : genome.getConnections()) {
@@ -11,7 +13,8 @@ public class RandomWeightMutation extends AbstractMutation {
                 continue;
             }
 
-            connection.setWeight(getRandomGaussian(2));
+            double w = connection.getWeight() + getRandomGaussian(SIGMA);
+            connection.setWeight(WeightUtil.clamp(w));
         }
     }
 }

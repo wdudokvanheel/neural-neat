@@ -50,10 +50,6 @@ public class Neuron{
 		return connection;
 	}
 
-	public void addConnection(Neuron input){
-		addConnection(input, 0);
-	}
-
 	public void resetValue(){
 		value = null;
 	}

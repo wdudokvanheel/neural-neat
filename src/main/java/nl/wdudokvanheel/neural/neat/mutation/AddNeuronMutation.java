@@ -73,9 +73,10 @@ public class AddNeuronMutation extends AbstractMutation {
 
         genome.addNeuron(newNeuron);
 
-        //Create a connection from the original source to the new neuron with a weight of 1
+        //Create a connection from the original source to the new neuron with a random weigth
+        double init = 1.0;
         int sourceConnectionId = innovationService.getConnectionInnovationId(connection.getSource(), newNeuron.getInnovationId());
-        ConnectionGene sourceConnection = new ConnectionGene(sourceConnectionId, connection.getSource(), newNeuron.getInnovationId(), 1.0);
+        ConnectionGene sourceConnection = new ConnectionGene(sourceConnectionId, connection.getSource(), newNeuron.getInnovationId(), init);
         genome.addConnection(sourceConnection);
 
         //Create a connection from the new neuron to the original destination with the same weight as the original connection

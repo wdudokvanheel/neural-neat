@@ -76,7 +76,7 @@ public class AddConnectionMutation extends AbstractMutation {
                 continue;
             }
 
-            if (source.getLayer() >= target.getLayer() && target.getType() != NeuronGeneType.OUTPUT && source.getType() != NeuronGeneType.INPUT) {
+            if (source.getLayer() >= target.getLayer() && target.getType() != NeuronGeneType.INPUT && source.getType() != NeuronGeneType.OUTPUT) {
                 iterator.remove();
             }
         }
