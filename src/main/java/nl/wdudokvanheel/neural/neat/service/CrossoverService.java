@@ -131,16 +131,17 @@ public class CrossoverService {
         }
 
         if (totalFitness <= 0) {
+            logger.error("ERROR IN TOTAL FITNESS: {}", totalFitness);
+
             if (species.get(0) != exclude) {
                 return species.get(0);
-            } else {
+            } else if (species.size() > 1) {
                 return species.get(1);
+            } else {
+                return species.get(0);
             }
         }
 
-        if (totalFitness <= 0) {
-            logger.error("ERROR IN TOTAL FITNESS: {}", totalFitness);
-        }
         double target = random.nextDouble(totalFitness);
         double count = 0;
         for (Species iter : species) {
@@ -223,8 +224,10 @@ public class CrossoverService {
         if (totalFitness <= 0) {
             if (species.getCreatures().get(0) != exclude) {
                 return species.getCreatures().get(0);
-            } else {
+            } else if (species.getCreatures().size() > 1) {
                 return species.getCreatures().get(1);
+            } else {
+                return species.getCreatures().get(0);
             }
         }
         double target = random.nextDouble(totalFitness);
