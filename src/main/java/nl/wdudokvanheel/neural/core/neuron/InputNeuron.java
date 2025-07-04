@@ -2,7 +2,7 @@ package nl.wdudokvanheel.neural.core.neuron;
 
 public class InputNeuron extends Neuron {
 	public InputNeuron(int id){
-		super(id);
+		super(id, 0);
 	}
 
 	public void setValue(double value){

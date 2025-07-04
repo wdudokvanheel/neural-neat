@@ -60,10 +60,9 @@ public class AddNeuronMutation extends AbstractMutation {
         //Find the source neuron to get the layer
         NeuronGene source = genome.getNeuronById(connection.getSource());
         NeuronGene target = genome.getNeuronById(connection.getTarget());
-        if (target.getType() != NeuronGeneType.OUTPUT) {
-            if (target.getLayer() - source.getLayer() == 1) {
-                moveNeuronsOneLayer(genome, target.getLayer());
-            }
+
+        if (target.getLayer() - source.getLayer() == 1) {
+            moveNeuronsOneLayer(genome, target.getLayer());
         }
 
         //Create the new neuron
@@ -87,10 +86,9 @@ public class AddNeuronMutation extends AbstractMutation {
 
     private void moveNeuronsOneLayer(Genome genome, int fromLayer) {
         for (NeuronGene neuron : genome.getNeurons()) {
-            if (neuron.getType() != NeuronGeneType.HIDDEN)
-                continue;
-            if (neuron.getLayer() >= fromLayer)
+            if (neuron.getLayer() >= fromLayer) {
                 neuron.setLayer(neuron.getLayer() + 1);
+            }
         }
     }
 }

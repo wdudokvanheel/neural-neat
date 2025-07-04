@@ -33,7 +33,7 @@ public class Network {
             switch (gene.getType()) {
                 case INPUT -> addNeuron(new InputNeuron(gene.getInnovationId()));
                 case HIDDEN -> addNeuron(new Neuron(gene.getInnovationId(), gene.getLayer()));
-                case OUTPUT -> addNeuron(new OutputNeuron(gene.getInnovationId()));
+                case OUTPUT -> addNeuron(new OutputNeuron(gene.getInnovationId(), gene.getLayer()));
             }
         }
 
@@ -96,7 +96,7 @@ public class Network {
             clone.addNeuron(new Neuron(n.getId(), n.layer));
         }
         for (OutputNeuron n : outputNeurons) {
-            clone.addNeuron(new OutputNeuron(n.getId()));
+            clone.addNeuron(new OutputNeuron(n.getId(), n.layer));
         }
 
         // clone connections
@@ -124,7 +124,10 @@ public class Network {
     }
 
     public int getLayers() {
-        return hiddenNeurons.stream().mapToInt(n -> n.layer).max().orElse(0);
+        return getAllNeurons().stream()
+                .mapToInt(n -> n.layer)
+                .max()
+                .orElse(0);
     }
 
     @Override
