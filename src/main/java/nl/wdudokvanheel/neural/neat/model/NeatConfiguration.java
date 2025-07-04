@@ -7,6 +7,8 @@ public class NeatConfiguration {
     public double speciesThreshold = 3.0;
     public int targetSpecies = 50;
     public boolean adjustSpeciesThreshold = true;
+    public double minSpeciesThreshold = 0.3;
+    public double maxSpeciesThreshold = 10.0;
     public double bottomElimination = 0.2;
     public double reproduceWithoutCrossover = 0.25;
     public double newCreaturesPerGeneration = 0.2;
