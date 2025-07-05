@@ -5,6 +5,7 @@ import nl.wdudokvanheel.neural.neat.service.MutationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -44,14 +45,14 @@ class MutationServiceTest {
     private static Genome roomyGenome(InnovationService inv) {   // 2 inputs, 1 hidden, 1 output
         Genome g = new Genome();
 
-        int in1  = inv.getInputNodeInnovationId(0);          // layer 0
-        int in2  = inv.getInputNodeInnovationId(1);          // layer 0
-        int hid  = inv.getNeuronInnovationId(42);            // layer 1 (arbitrary “split-key”)
-        int out  = inv.getOutputNodeInnovationId(0);         // layer 2
+        int in1 = inv.getInputNodeInnovationId(0);          // layer 0
+        int in2 = inv.getInputNodeInnovationId(1);          // layer 0
+        int hid = inv.getNeuronInnovationId(42);            // layer 1 (arbitrary “split-key”)
+        int out = inv.getOutputNodeInnovationId(0);         // layer 2
 
         g.addNeurons(
-                new NeuronGene(NeuronGeneType.INPUT,  in1, 0),
-                new NeuronGene(NeuronGeneType.INPUT,  in2, 0),
+                new NeuronGene(NeuronGeneType.INPUT, in1, 0),
+                new NeuronGene(NeuronGeneType.INPUT, in2, 0),
                 new NeuronGene(NeuronGeneType.HIDDEN, hid, 1),
                 new NeuronGene(NeuronGeneType.OUTPUT, out, 2)
         );
@@ -61,7 +62,7 @@ class MutationServiceTest {
                 new ConnectionGene(inv.getConnectionInnovationId(in1, hid), in1, hid, 0.2, true),
                 new ConnectionGene(inv.getConnectionInnovationId(in2, hid), in2, hid, 0.2, true),
                 // downstream edge
-                new ConnectionGene(inv.getConnectionInnovationId(hid,  out), hid, out, 0.2, true)
+                new ConnectionGene(inv.getConnectionInnovationId(hid, out), hid, out, 0.2, true)
         );
         return g;
     }
@@ -78,6 +79,44 @@ class MutationServiceTest {
         c.mutateWeightProbability = 0.40;
 
         return c;
+    }
+
+    private static void injectRandom(MutationService mut, long seed) throws Exception {
+        Random fixed = new Random(seed);
+
+        // 1) MutationService.random
+        Field rndFld = MutationService.class.getDeclaredField("random");
+        rndFld.setAccessible(true);
+        rndFld.set(mut, fixed);
+
+        // 2) Random inside each Mutation (field 'random' inherited from AbstractMutation)
+        Field mapFld = MutationService.class.getDeclaredField("mutations");
+        mapFld.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Map<Mutation, Double> m = (Map<Mutation, Double>) mapFld.get(mut);
+
+        for (Mutation op : m.keySet()) {
+            Field r = op.getClass().getSuperclass().getDeclaredField("random");
+            r.setAccessible(true);
+            r.set(op, fixed);
+
+            // WeightMutation owns two inner mutation objects; patch those too
+            if (op instanceof WeightMutation wm) {
+                Field rwFld = WeightMutation.class.getDeclaredField("randomWeightMutation");
+                Field swFld = WeightMutation.class.getDeclaredField("shiftWeightMutation");
+                rwFld.setAccessible(true);
+                swFld.setAccessible(true);
+                AbstractMutation rw = (AbstractMutation) rwFld.get(wm);
+                AbstractMutation sw = (AbstractMutation) swFld.get(wm);
+
+                Field rwRand = rw.getClass().getSuperclass().getDeclaredField("random");
+                Field swRand = sw.getClass().getSuperclass().getDeclaredField("random");
+                rwRand.setAccessible(true);
+                swRand.setAccessible(true);
+                rwRand.set(rw, fixed);
+                swRand.set(sw, fixed);
+            }
+        }
     }
 
     @Test
@@ -204,34 +243,43 @@ class MutationServiceTest {
     }
 
     @Test
-    @DisplayName("multipleMutationsPerGenome=true allows all mutations to fire")
-    void allMutationsPossible() {
+    @DisplayName("multipleMutationsPerGenome=true allows all mutation kinds to take effect (deterministic seed)")
+    void allMutationsPossible() throws Exception {
 
-        NeatConfiguration cfg = config(true);
-        cfg.mutateAddConnectionProbability  = 1.0;
-        cfg.mutateAddNeuronProbability      = 1.0;
+        // --- configuration: every mutation attempted ------------------
+        NeatConfiguration cfg = new NeatConfiguration();
+        cfg.multipleMutationsPerGenome = true;
+        cfg.mutateAddConnectionProbability = 1.0;
+        cfg.mutateAddNeuronProbability = 1.0;
         cfg.mutateToggleConnectionProbability = 1.0;
-        cfg.mutateWeightProbability         = 1.0;
+        cfg.mutateWeightProbability = 1.0;
 
-        InnovationService inv = new InnovationService();          // single innovation space
-        MutationService mut   = new MutationService(cfg, inv);
-        Genome g              = roomyGenome(inv);                 // build with the same service
+        InnovationService inv = new InnovationService();
+        MutationService mut = new MutationService(cfg, inv);
 
+        // inject fixed Random so outcomes are repeatable
+        injectRandom(mut, 42L);
+
+        Genome g = roomyGenome(inv);   // 4 neurons, 3 connections
+
+        // --- act -------------------------------------------------------
         mut.mutateGenome(g);
 
+        // --- assert: every mutation left a footprint ------------------
+
+        // Add-Neuron: +1 neuron, +2 connections (one disabled)
         assertTrue(g.getNeurons().size() >= 5, "neuron not added");
-        assertTrue(g.getConnections().size() >= 6,  "connections not added");
+        assertTrue(g.getConnections().size() >= 6, "connections not added");
 
-
+        // Toggle-Connection: at least one disabled edge present
         long disabled = g.getConnections().stream()
                 .filter(c -> !c.isEnabled())
                 .count();
-
         assertTrue(disabled >= 1, "no connection toggled off");
 
+        // Weight-mutation: some weight differs from the original 0.2
         boolean weightChanged = g.getConnections().stream()
                 .anyMatch(c -> Math.abs(c.getWeight() - 0.2) > 1e-6);
         assertTrue(weightChanged, "weights unchanged");
     }
-
 }
