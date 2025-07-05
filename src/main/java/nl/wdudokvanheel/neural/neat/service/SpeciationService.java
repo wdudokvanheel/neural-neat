@@ -78,22 +78,21 @@ public class SpeciationService {
             if (iter.size() >= context.configuration.minimumSpeciesSizeForChampionCopy) {
                 Creature champion = context.creatureFactory.createNewCreature(iter.getChampion().getGenome().clone());
                 creatures.add(champion);
-//				NeatFlappy.evolution.getLatestGeneration().addCreature((NeatBird) champion, CreatureSource.CHAMPION, ((NeatBird) iter.getChampion()).id);
 			}
         }
         return creatures;
     }
 
     public void sortCreatures(List<Species> species) {
-        species.forEach(s -> sortCreaturesByScore(s));
+        species.forEach(this::sortCreaturesByScore);
     }
 
     public void sortCreaturesByScore(Species species) {
-        species.getCreatures().sort(Comparator.comparingDouble((Creature c) -> c.getFitness()).reversed());
+        species.getCreatures().sort(Comparator.comparingDouble(Creature::getFitness).reversed());
     }
 
     public List<Species> sortSpeciesByScore(List<Species> species) {
-        return species.stream().sorted(Comparator.comparingDouble((Species s) -> s.getFitness()).reversed()).collect(Collectors.toList());
+        return species.stream().sorted(Comparator.comparingDouble(Species::getFitness).reversed()).collect(Collectors.toList());
     }
 
     public void eliminateLeastFitCreatures(List<Species> species) {
@@ -124,7 +123,6 @@ public class SpeciationService {
         //Creature did not match with any existing species, create a new one
         Species newSpecies = new Species(creature);
         species.add(newSpecies);
-        newSpecies.addCreature(creature);
         creature.setSpecies(newSpecies);
         logger.trace("Creating new species for creature");
 

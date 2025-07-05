@@ -16,14 +16,20 @@ public class Species {
     public Species(Creature representative) {
         id = ++counter;
         this.representative = representative;
+        addCreature(representative);
     }
 
     public Species(int id, Creature representative) {
         this.id = id;
         this.representative = representative;
+        addCreature(representative);
     }
 
     public void addCreature(Creature creature) {
+        if (creatures.contains(creature)) {
+            throw new IllegalArgumentException("Creature " + creature + " is already present in Species #" + id);
+        }
+
         creatures.add(creature);
     }
 
