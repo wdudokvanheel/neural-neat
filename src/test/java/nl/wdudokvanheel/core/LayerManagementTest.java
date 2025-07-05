@@ -1,3 +1,5 @@
+package nl.wdudokvanheel.core;
+
 import nl.wdudokvanheel.neural.core.Network;
 import nl.wdudokvanheel.neural.core.neuron.Neuron;
 import nl.wdudokvanheel.neural.neat.model.ConnectionGene;

@@ -1,3 +1,5 @@
+package nl.wdudokvanheel.neat.service;
+
 import nl.wdudokvanheel.neural.neat.model.*;
 import nl.wdudokvanheel.neural.neat.mutation.*;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;

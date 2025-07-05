@@ -1,3 +1,5 @@
+package nl.wdudokvanheel.neat.service;
+
 import nl.wdudokvanheel.neural.neat.model.ConnectionGene;
 import nl.wdudokvanheel.neural.neat.model.Genome;
 import nl.wdudokvanheel.neural.neat.model.NeuronGene;

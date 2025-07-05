@@ -1,3 +1,5 @@
+package nl.wdudokvanheel.neat;
+
 import nl.wdudokvanheel.neural.neat.GenomeComparison;
 import nl.wdudokvanheel.neural.neat.model.ConnectionGene;
 import nl.wdudokvanheel.neural.neat.model.Genome;

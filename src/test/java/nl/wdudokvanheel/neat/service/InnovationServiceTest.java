@@ -1,3 +1,5 @@
+package nl.wdudokvanheel.neat.service;
+
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

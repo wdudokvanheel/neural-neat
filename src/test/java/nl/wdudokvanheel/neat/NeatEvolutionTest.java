@@ -1,3 +1,5 @@
+package nl.wdudokvanheel.neat;
+
 import nl.wdudokvanheel.neural.CreatureFactory;
 import nl.wdudokvanheel.neural.neat.AbstractCreature;
 import nl.wdudokvanheel.neural.neat.NeatEvolution;
