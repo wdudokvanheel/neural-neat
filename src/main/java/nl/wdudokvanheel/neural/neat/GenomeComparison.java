@@ -2,14 +2,8 @@ package nl.wdudokvanheel.neural.neat;
 
 import nl.wdudokvanheel.neural.neat.model.ConnectionGene;
 import nl.wdudokvanheel.neural.neat.model.Genome;
-import nl.wdudokvanheel.neural.neat.model.NeuronGene;
-import nl.wdudokvanheel.neural.neat.model.NeuronGeneType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class GenomeComparison {
-    private Logger logger = LoggerFactory.getLogger(GenomeComparison.class);
-
     private double distance = 0;
 
     private Genome fitParent;
@@ -22,19 +16,13 @@ public class GenomeComparison {
     //C3 in the NEAT paper
     private double weightCoefficient = 0.5;
 
-    private int totalGenes = 0;
-
-    private int matchingGenes = 0;
-    private int matchingNeurons = 0;
     private int matchingConnections = 0;
 
     private int excessGenes = 0;
-    private int excessNeurons = 0;
     private int excessConnections = 0;
 
     private int disjointGenes = 0;
     private int disjointConnections = 0;
-    private int disjointNeurons = 0;
 
     private double averageWeightDifference = 0;
 
@@ -53,64 +41,17 @@ public class GenomeComparison {
     }
 
     private void calculateValues() {
-        calculateNeuronValues();
-        calculateConnectionValues();
+        calculateConnectionValues();                       // neurons omitted
 
-        totalGenes = Math.max(countTotalGenes(fitParent), countTotalGenes(weakParent));
-        matchingGenes = matchingNeurons + matchingConnections;
+        int n = Math.max(
+                fitParent.getConnections().size(),
+                weakParent.getConnections().size()
+        );
+        if (n == 0) n = 1;                                 // avoid divide-by-zero
 
-        excessGenes = excessNeurons + excessConnections;
-        disjointGenes = disjointNeurons + disjointConnections;
-
-        int n = Math.max(totalGenes, 1);
-
-        distance = (excessCoefficient * excessGenes / n) + (disjointCoefficient * disjointGenes / n) + (weightCoefficient * averageWeightDifference);
-    }
-
-    private void calculateNeuronValues() {
-        int maxInnovationIdFitParent = getMaxNeuronInnovationId(fitParent);
-        int maxInnovationIdWeakParent = getMaxNeuronInnovationId(weakParent);
-        int maxInnovationId = Math.max(maxInnovationIdFitParent, maxInnovationIdWeakParent);
-
-        for (int i = 1; i <= maxInnovationId; i++) {
-            NeuronGene fitNeuron = fitParent.getNeuronById(i);
-            NeuronGene weakNeuron = weakParent.getNeuronById(i);
-
-            //Continue if both genomes don't have the neuron
-            if (fitNeuron == null && weakNeuron == null) {
-                continue;
-            }
-
-            //Skip any neurons that are not hidden, as input and output nodes should be the same for both genomes
-            if ((fitNeuron != null && fitNeuron.getType() != NeuronGeneType.HIDDEN) || (weakNeuron != null && weakNeuron.getType() != NeuronGeneType.HIDDEN)) {
-                continue;
-            }
-
-            //Both genomes have this neuron, so count it as a matching neuron
-            if (fitNeuron != null && weakNeuron != null) {
-                matchingNeurons++;
-                continue;
-            }
-
-            //Only the fit parent has the neuron, test if it's an excess or disjoint neuron
-            if (fitNeuron != null) {
-                if (fitNeuron.getInnovationId() > maxInnovationIdWeakParent) {
-                    excessNeurons++;
-                } else {
-                    disjointNeurons++;
-                }
-                continue;
-            }
-
-            //Only the weak parent has the neuron, test if it's an excess or disjoint neuron
-            if (weakNeuron != null) {
-                if (weakNeuron.getInnovationId() > maxInnovationIdFitParent) {
-                    excessNeurons++;
-                } else {
-                    disjointNeurons++;
-                }
-            }
-        }
+        distance = (excessCoefficient   * excessConnections   / n)
+                + (disjointCoefficient * disjointConnections / n)
+                + (weightCoefficient   * averageWeightDifference);
     }
 
     private void calculateConnectionValues() {
@@ -159,17 +100,6 @@ public class GenomeComparison {
         averageWeightDifference = matchingConnections == 0 ? 0 : totalWeightDifference / matchingConnections;
     }
 
-    private int getMaxNeuronInnovationId(Genome genome) {
-        int highest = 0;
-        for (NeuronGene neuron : genome.getNeurons()) {
-            if (neuron.getInnovationId() > highest) {
-                highest = neuron.getInnovationId();
-            }
-        }
-
-        return highest;
-    }
-
     private int getMaxConnectionInnovationId(Genome genome) {
         int highest = 0;
         for (ConnectionGene connection : genome.getConnections()) {
@@ -178,18 +108,6 @@ public class GenomeComparison {
             }
         }
         return highest;
-    }
-
-    private int countTotalGenes(Genome genome) {
-        int total = genome.getConnections().size();
-
-        for (NeuronGene neuron : genome.getNeurons()) {
-            if (neuron.getType() == NeuronGeneType.HIDDEN) {
-                total++;
-            }
-        }
-
-        return total;
     }
 
     public double getDistance() {
