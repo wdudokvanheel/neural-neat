@@ -50,8 +50,20 @@ public class AddNeuronMutation extends AbstractMutation {
     }
 
     public void replaceConnectionWithNeuron(Genome genome, ConnectionGene connection) {
+        // Ensure the connection is part of this genome
         if (!genome.getConnections().contains(connection)) {
             throw new IllegalArgumentException("Connection is not a part of the genome");
+        }
+
+        int newNeuronId = innovationService.getNeuronInnovationId(connection.getInnovationId());
+
+        /*
+           If this connection has already been split once, the InnovationService
+           will return the same neuron-id again.  If that neuron is already
+           present in the genome we simply return, preventing duplicate nodes.
+       */
+        if (genome.hasNeuron(newNeuronId)) {
+            return;
         }
 
         //Disable the connection that is being replaced by a neuron
@@ -66,10 +78,11 @@ public class AddNeuronMutation extends AbstractMutation {
         }
 
         //Create the new neuron
-        int id = innovationService.getNeuronInnovationId(connection.getInnovationId());
-        NeuronGene newNeuron = new NeuronGene(NeuronGeneType.HIDDEN, id, source.getLayer() + 1);
-//        logger.trace("Adding a neuron {} between {} and {}", newNeuron, source, target);
-
+        NeuronGene newNeuron = new NeuronGene(
+                NeuronGeneType.HIDDEN,
+                newNeuronId,
+                source.getLayer() + 1
+        );
         genome.addNeuron(newNeuron);
 
         //Create a connection from the original source to the new neuron with a random weigth
