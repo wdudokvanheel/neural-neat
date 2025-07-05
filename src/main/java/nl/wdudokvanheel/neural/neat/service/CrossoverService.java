@@ -80,21 +80,6 @@ public class CrossoverService {
         }
 
         for (int i = 0; i < offspring; i++) {
-            //Can't crossover if species size is 1, find other mate
-//			if(species.size() == 1){
-//				//TODO remove duplicate code
-//				Genome genome = species.getCreatures().get(0).getGenome().clone();
-//				//Mutate the genome
-//				context.mutationService.mutateGenome(genome);
-//				//Create a new creature with the specified offspring
-//				Creature newCreature = context.creatureFactory.createNewCreature(genome);
-//				creatures.add(newCreature);
-//				NeatFlappy.evolution.getLatestGeneration().addCreature((NeatBird) newCreature, CreatureSource.ASEXUAL,
-//						((NeatBird) species.getCreatures().get(0)).id);
-//
-//				continue;
-//			}
-
             //Get two random creatures
             Creature parentA = selectRandomWeightedCreature(species);
             //Make sure to exclude the other parent
@@ -107,8 +92,6 @@ public class CrossoverService {
 
             Creature child = crossCreatures(context, parentA, parentB);
             creatures.add(child);
-//			NeatFlappy.evolution.getLatestGeneration().addCreature((NeatBird) child, CreatureSource.OFSPRNG, ((NeatBird) parentA).id,
-//					((NeatBird) parentB).id);
         }
         logger.trace("Created {} offspring with crossover", creatures.size());
 
