@@ -69,7 +69,7 @@ public class AddNeuronMutation extends AbstractMutation {
         NeuronGene source = genome.getNeuronById(connection.getSource());
         NeuronGene target = genome.getNeuronById(connection.getTarget());
 
-        if (source.getLayer() <= target.getLayer()) {
+        if (target.getLayer() - source.getLayer() <= 1) {
             moveNeuronsOneLayer(genome, target.getLayer());
         }
 
