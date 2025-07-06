@@ -36,12 +36,16 @@ Miikkulainen in 2002.
 
 ### [XOR Benchmark](https://github.com/wdudokvanheel/neural-neat-xor)
 
-Check out this project for a minimal example on how to utilize the library. Average generations to solve hovers around
-40 generations with 99.9% success rate.
+Check out this project for a minimal example on how to utilize the library. Average generations-to-solve hovers around
+40 generations with >99% success rate.
 
 ```
-Average generations to solution across 994 successful runs: 40.96
-Failed runs: 6
+Statistics for 9959/10000 (99.59%) successful runs:
+  Average generations:  41.01
+  Min generations:      8
+  Max generations:      298
+  Median generations:   35.00
+  StdDev generations:   24.79
 ```
 
 ### [Flappy Bird](https://github.com/wdudokvanheel/neural-neat-flappy)
@@ -53,8 +57,8 @@ algorithm. It tries to learn a bird how to navigate an always changing *Flappy B
 
 ## Getting Started
 
-This library is available on Maven Central and is ready to drop in your project. You can also build the JAR yourself if
-you prefer.
+This library is available on Maven Central and is ready to be dropped in your project. You can also build the
+JAR yourself if you prefer.
 
 ### Maven
 

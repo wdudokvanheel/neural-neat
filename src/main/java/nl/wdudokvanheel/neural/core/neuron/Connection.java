@@ -1,8 +1,5 @@
 package nl.wdudokvanheel.neural.core.neuron;
 
-/**
- * @Author Wesley Dudok van Heel
- */
 public class Connection{
 	public Neuron source;
 	public Neuron target;
