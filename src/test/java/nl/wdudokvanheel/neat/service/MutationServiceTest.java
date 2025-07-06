@@ -160,7 +160,7 @@ class MutationServiceTest {
         for (int i = 0; i < 10_000; i++) {
             double w = rnd.nextGaussian() * 50;          // extreme random weight
             double clamped = WeightUtil.clamp(w);
-            assertTrue(clamped <= 5.0 && clamped >= -5.0,
+            assertTrue(clamped <= WeightUtil.LIMIT && clamped >= -WeightUtil.LIMIT,
                     "clamp failed for " + w);
         }
     }
@@ -178,7 +178,7 @@ class MutationServiceTest {
         for (int i = 0; i < 1_000; i++) {
             mut.mutate(g);
             g.getConnections().forEach(
-                    c -> assertTrue(Math.abs(c.getWeight()) <= 5.0,
+                    c -> assertTrue(Math.abs(c.getWeight()) <= WeightUtil.LIMIT,
                             "weight out of clamp range: " + c.getWeight()));
         }
     }
