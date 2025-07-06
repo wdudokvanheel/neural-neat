@@ -88,6 +88,11 @@ public class CrossoverService {
             if ((random.nextDouble() < context.configuration.interspeciesCrossover && context.species.size() > 1) || species.size() == 1) {
                 parentBSpecies = selectRandomWeightedSpecies(context.species, species);
             }
+            // If there is no other species available, add an asexual offspring
+            if(parentBSpecies == null) {
+                creatures.add(createOffspringWithoutCrossover(context, species, 1).getFirst());
+                continue;
+            }
             Creature parentB = selectRandomWeightedCreature(parentBSpecies, parentA);
 
             Creature child = crossCreatures(context, parentA, parentB);
@@ -114,14 +119,12 @@ public class CrossoverService {
         }
 
         if (totalFitness <= 0) {
-            logger.error("ERROR IN TOTAL FITNESS: {}", totalFitness);
-
             if (species.get(0) != exclude) {
                 return species.get(0);
             } else if (species.size() > 1) {
                 return species.get(1);
             } else {
-                return species.get(0);
+                return null;
             }
         }
 
@@ -167,7 +170,6 @@ public class CrossoverService {
             //Create a new creature with the specified offspring
             Creature newCreature = context.creatureFactory.createNewCreature(genome);
             creatures.add(newCreature);
-//			NeatFlappy.evolution.getLatestGeneration().addCreature((NeatBird) newCreature, CreatureSource.ASEXUAL, ((NeatBird) creature).id);
         }
         logger.trace("Created {} offspring without crossover", creatures.size());
         return creatures;
