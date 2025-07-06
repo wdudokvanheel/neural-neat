@@ -1,6 +1,5 @@
-package nl.wdudokvanheel.neural.neat.model;
+package nl.wdudokvanheel.neural.neat;
 
-import nl.wdudokvanheel.neural.CreatureFactory;
 import nl.wdudokvanheel.neural.neat.service.CrossoverService;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import nl.wdudokvanheel.neural.neat.service.MutationService;

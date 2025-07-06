@@ -1,10 +1,13 @@
 package nl.wdudokvanheel.neural.util;
 
-import nl.wdudokvanheel.neural.core.Network;
-import nl.wdudokvanheel.neural.core.neuron.Connection;
-import nl.wdudokvanheel.neural.core.neuron.Neuron;
-import nl.wdudokvanheel.neural.neat.model.*;
-
+import nl.wdudokvanheel.neural.neat.Creature;
+import nl.wdudokvanheel.neural.neat.Species;
+import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
+import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
+import nl.wdudokvanheel.neural.network.Network;
+import nl.wdudokvanheel.neural.network.neuron.Connection;
+import nl.wdudokvanheel.neural.network.neuron.Neuron;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

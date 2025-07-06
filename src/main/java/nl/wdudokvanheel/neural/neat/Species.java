@@ -1,10 +1,9 @@
-package nl.wdudokvanheel.neural.neat.model;
+package nl.wdudokvanheel.neural.neat;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Species {
-    //TEMP
     private static int counter = 0;
     public int id;
     private List<Creature> creatures = new ArrayList<>();

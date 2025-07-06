@@ -1,7 +1,7 @@
 package nl.wdudokvanheel.neural.neat;
 
-import nl.wdudokvanheel.neural.CreatureFactory;
-import nl.wdudokvanheel.neural.neat.model.*;
+import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
 import nl.wdudokvanheel.neural.neat.mutation.RandomWeightMutation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Random;
 
 public class NeatEvolution {
-    private static Logger logger = LoggerFactory.getLogger(NeatEvolution.class);
-    private static Random random = new Random();
+    private static final Logger logger = LoggerFactory.getLogger(NeatEvolution.class);
+    private static final Random random = new Random();
 
     /**
-     * Create a new NEAT context with default values. The initial creature will be cloned and modified to create the population
+     * Create a new NEAT context with default values.
      *
      * @param factory The creature factory to generate new creatures
      * @return A neat context

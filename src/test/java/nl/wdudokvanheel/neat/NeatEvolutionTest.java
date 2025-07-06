@@ -1,11 +1,13 @@
 package nl.wdudokvanheel.neat;
 
-import nl.wdudokvanheel.neural.CreatureFactory;
-import nl.wdudokvanheel.neural.neat.AbstractCreature;
-import nl.wdudokvanheel.neural.neat.NeatEvolution;
-import nl.wdudokvanheel.neural.neat.model.*;
+import nl.wdudokvanheel.neural.neat.*;
+import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
+import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
+import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import nl.wdudokvanheel.neural.neat.service.MutationService;
+import nl.wdudokvanheel.neural.util.AbstractCreature;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

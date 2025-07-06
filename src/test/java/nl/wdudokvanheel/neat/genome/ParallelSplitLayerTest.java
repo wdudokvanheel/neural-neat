@@ -1,9 +1,9 @@
-package nl.wdudokvanheel.core.neuron;
+package nl.wdudokvanheel.neat.genome;
 
-import nl.wdudokvanheel.neural.neat.model.ConnectionGene;
-import nl.wdudokvanheel.neural.neat.model.Genome;
-import nl.wdudokvanheel.neural.neat.model.NeuronGene;
-import nl.wdudokvanheel.neural.neat.model.NeuronGeneType;
+import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
+import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
+import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
 import nl.wdudokvanheel.neural.neat.mutation.AddNeuronMutation;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import org.junit.jupiter.api.Test;

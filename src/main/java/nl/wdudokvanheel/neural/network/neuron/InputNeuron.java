@@ -1,4 +1,4 @@
-package nl.wdudokvanheel.neural.core.neuron;
+package nl.wdudokvanheel.neural.network.neuron;
 
 public class InputNeuron extends Neuron {
 	public InputNeuron(int id){

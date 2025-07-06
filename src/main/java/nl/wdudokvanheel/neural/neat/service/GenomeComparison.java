@@ -1,7 +1,7 @@
-package nl.wdudokvanheel.neural.neat;
+package nl.wdudokvanheel.neural.neat.service;
 
-import nl.wdudokvanheel.neural.neat.model.ConnectionGene;
-import nl.wdudokvanheel.neural.neat.model.Genome;
+import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
 
 public class GenomeComparison {
     private double distance = 0;

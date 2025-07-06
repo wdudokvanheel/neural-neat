@@ -1,4 +1,4 @@
-package nl.wdudokvanheel.neural.neat.model;
+package nl.wdudokvanheel.neural.neat.genome;
 
 public class ConnectionGene {
     private int innovationId;

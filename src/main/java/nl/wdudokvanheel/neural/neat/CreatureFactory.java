@@ -1,7 +1,6 @@
-package nl.wdudokvanheel.neural;
+package nl.wdudokvanheel.neural.neat;
 
-import nl.wdudokvanheel.neural.neat.model.Creature;
-import nl.wdudokvanheel.neural.neat.model.Genome;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
 
 public interface CreatureFactory<C extends Creature> {
     /**

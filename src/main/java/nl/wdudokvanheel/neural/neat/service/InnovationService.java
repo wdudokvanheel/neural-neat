@@ -2,7 +2,7 @@ package nl.wdudokvanheel.neural.neat.service;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-import nl.wdudokvanheel.neural.neat.model.NeuronGene;
+import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;

@@ -1,4 +1,4 @@
-package nl.wdudokvanheel.neural.neat.model;
+package nl.wdudokvanheel.neural.neat;
 
 public class NeatConfiguration {
     public int populationSize = 1000;

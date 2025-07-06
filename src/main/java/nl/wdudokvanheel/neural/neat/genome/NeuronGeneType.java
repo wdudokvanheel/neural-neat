@@ -1,4 +1,4 @@
-package nl.wdudokvanheel.neural.neat.model;
+package nl.wdudokvanheel.neural.neat.genome;
 
 public enum NeuronGeneType {
     INPUT, HIDDEN, OUTPUT

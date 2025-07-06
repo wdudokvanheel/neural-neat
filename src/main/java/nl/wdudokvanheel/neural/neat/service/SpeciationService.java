@@ -1,10 +1,9 @@
 package nl.wdudokvanheel.neural.neat.service;
 
-import nl.wdudokvanheel.neural.neat.GenomeComparison;
-import nl.wdudokvanheel.neural.neat.model.Creature;
-import nl.wdudokvanheel.neural.neat.model.NeatConfiguration;
-import nl.wdudokvanheel.neural.neat.model.NeatContext;
-import nl.wdudokvanheel.neural.neat.model.Species;
+import nl.wdudokvanheel.neural.neat.Creature;
+import nl.wdudokvanheel.neural.neat.NeatConfiguration;
+import nl.wdudokvanheel.neural.neat.NeatContext;
+import nl.wdudokvanheel.neural.neat.Species;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

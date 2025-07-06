@@ -67,7 +67,7 @@ JAR yourself if you prefer.
     <dependency>
             <groupId>nl.wdudokvanheel</groupId>
             <artifactId>neat</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
     </dependency>
 ```
 
@@ -95,14 +95,15 @@ JAR yourself if you prefer.
 
 ## Project Structure
 
-* **`neat`**: High-level evolution classes (`NeatEvolution`, `NeatContext`, `AbstractCreature`).
-* **`core`**: Simple neural network implementation to run the genomes `Network`
-* **`neat.model`**: Models to represent the Genome, context & configuration (`Genome`, `NeuronGene`, `ConnectionGene`,
-  etc.).
-* **`neat.service`**: Algorithmic services & logic (`InnovationService`, `MutationService`,
-  `CrossoverService`, `SpeciationService`).
-* **`neat.mutation`**: Mutation operators (`AddNeuronMutation`, `AddConnectionMutation`,
-  `ToggleConnectionMutation`, various weight mutations).
+* **neat**: High-level evolution classes (`NeatEvolution`, `NeatContext`, `Neat Configuration`, `Creature`, `Species`).
+  * **neat.genome**: Models to represent the Genome (`Genome`, `NeuronGene`, `ConnectionGene`).
+  * **neat.service**: Algorithmic services & logic (`InnovationService`, `MutationService`,
+    `CrossoverService`, `SpeciationService`, `GenomeComparison`).
+  * **neat.mutation**: Mutation operators (`AddNeuronMutation`, `AddConnectionMutation`,
+    `ToggleConnectionMutation`, various weight mutations).
+* **network**: Simple neural network implementation to convert and run a genome
+* **util**: Debug & helper classes
+
 
 Test suites are provided under `src/test/java`, covering:
 

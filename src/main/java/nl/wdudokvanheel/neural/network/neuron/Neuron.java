@@ -1,7 +1,7 @@
-package nl.wdudokvanheel.neural.core.neuron;
+package nl.wdudokvanheel.neural.network.neuron;
 
-import nl.wdudokvanheel.neural.core.function.ActivationFunction;
-import nl.wdudokvanheel.neural.core.function.SigmoidFunction;
+import nl.wdudokvanheel.neural.network.function.ActivationFunction;
+import nl.wdudokvanheel.neural.network.function.SigmoidFunction;
 
 import java.util.ArrayList;
 import java.util.List;

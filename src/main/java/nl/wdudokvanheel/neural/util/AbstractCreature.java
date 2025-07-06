@@ -1,11 +1,14 @@
-package nl.wdudokvanheel.neural.neat;
+package nl.wdudokvanheel.neural.util;
 
-import nl.wdudokvanheel.neural.neat.model.Creature;
-import nl.wdudokvanheel.neural.neat.model.Genome;
-import nl.wdudokvanheel.neural.neat.model.Species;
+import nl.wdudokvanheel.neural.neat.Creature;
+import nl.wdudokvanheel.neural.neat.Species;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
 
+/**
+ * Small helper class to implement the basic requirements for the Creature interface
+ */
 public class AbstractCreature implements Creature {
-    private Genome genome;
+    private final Genome genome;
     private Species species;
     private double score;
 

@@ -1,8 +1,7 @@
 package nl.wdudokvanheel.neural.neat.mutation;
 
-import nl.wdudokvanheel.neural.DoubleRange;
-import nl.wdudokvanheel.neural.neat.model.ConnectionGene;
-import nl.wdudokvanheel.neural.neat.model.Genome;
+import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
 
 import java.util.List;
 import java.util.Random;
@@ -23,10 +22,6 @@ public abstract class AbstractMutation implements Mutation {
 
     public double getRandomDouble(double min, double max) {
         return random.nextDouble(min, max);
-    }
-
-    public double getRandomDouble(DoubleRange range) {
-        return random.nextDouble(range.min, range.max);
     }
 
     /**

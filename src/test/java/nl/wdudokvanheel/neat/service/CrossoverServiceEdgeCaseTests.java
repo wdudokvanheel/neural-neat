@@ -1,9 +1,9 @@
 package nl.wdudokvanheel.neat.service;
 
-import nl.wdudokvanheel.neural.neat.model.ConnectionGene;
-import nl.wdudokvanheel.neural.neat.model.Genome;
-import nl.wdudokvanheel.neural.neat.model.NeuronGene;
-import nl.wdudokvanheel.neural.neat.model.NeuronGeneType;
+import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
+import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
+import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
 import nl.wdudokvanheel.neural.neat.service.CrossoverService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

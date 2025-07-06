@@ -1,7 +1,7 @@
 package nl.wdudokvanheel.neural.neat.mutation;
 
-import nl.wdudokvanheel.neural.neat.model.ConnectionGene;
-import nl.wdudokvanheel.neural.neat.model.Genome;
+import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
 
 public class RandomWeightMutation extends AbstractMutation {
     private static final double SIGMA = 0.5;

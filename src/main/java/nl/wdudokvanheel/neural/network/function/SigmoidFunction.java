@@ -1,4 +1,4 @@
-package nl.wdudokvanheel.neural.core.function;
+package nl.wdudokvanheel.neural.network.function;
 
 public class SigmoidFunction implements ActivationFunction{
 	@Override

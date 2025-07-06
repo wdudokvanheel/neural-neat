@@ -1,6 +1,6 @@
 package nl.wdudokvanheel.neural.neat.mutation;
 
-import nl.wdudokvanheel.neural.neat.model.Genome;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
 
 public class WeightMutation extends AbstractMutation {
     private double randomizeWeightsProbability;

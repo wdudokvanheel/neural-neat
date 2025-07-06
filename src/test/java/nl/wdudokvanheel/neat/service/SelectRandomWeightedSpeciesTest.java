@@ -1,9 +1,9 @@
 package nl.wdudokvanheel.neat.service;
 
-import nl.wdudokvanheel.neural.neat.AbstractCreature;
-import nl.wdudokvanheel.neural.neat.model.Genome;
-import nl.wdudokvanheel.neural.neat.model.Species;
+import nl.wdudokvanheel.neural.neat.Species;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
 import nl.wdudokvanheel.neural.neat.service.CrossoverService;
+import nl.wdudokvanheel.neural.util.AbstractCreature;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

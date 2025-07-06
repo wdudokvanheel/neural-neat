@@ -1,7 +1,7 @@
 package nl.wdudokvanheel.neural.neat.service;
 
-import nl.wdudokvanheel.neural.neat.model.Genome;
-import nl.wdudokvanheel.neural.neat.model.NeatConfiguration;
+import nl.wdudokvanheel.neural.neat.NeatConfiguration;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
 import nl.wdudokvanheel.neural.neat.mutation.*;
 
 import java.util.LinkedHashMap;

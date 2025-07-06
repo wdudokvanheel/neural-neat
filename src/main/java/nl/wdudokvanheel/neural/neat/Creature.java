@@ -1,4 +1,6 @@
-package nl.wdudokvanheel.neural.neat.model;
+package nl.wdudokvanheel.neural.neat;
+
+import nl.wdudokvanheel.neural.neat.genome.Genome;
 
 public interface Creature {
     Genome getGenome();

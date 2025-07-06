@@ -1,12 +1,12 @@
-package nl.wdudokvanheel.neural.core;
+package nl.wdudokvanheel.neural.network;
 
-import nl.wdudokvanheel.neural.core.neuron.Connection;
-import nl.wdudokvanheel.neural.core.neuron.InputNeuron;
-import nl.wdudokvanheel.neural.core.neuron.Neuron;
-import nl.wdudokvanheel.neural.core.neuron.OutputNeuron;
-import nl.wdudokvanheel.neural.neat.model.ConnectionGene;
-import nl.wdudokvanheel.neural.neat.model.Genome;
-import nl.wdudokvanheel.neural.neat.model.NeuronGene;
+import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
+import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
+import nl.wdudokvanheel.neural.network.neuron.Connection;
+import nl.wdudokvanheel.neural.network.neuron.InputNeuron;
+import nl.wdudokvanheel.neural.network.neuron.Neuron;
+import nl.wdudokvanheel.neural.network.neuron.OutputNeuron;
 
 import java.util.ArrayList;
 import java.util.HashMap;

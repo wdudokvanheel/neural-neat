@@ -1,6 +1,11 @@
 package nl.wdudokvanheel.neat.service;
 
-import nl.wdudokvanheel.neural.neat.model.*;
+import nl.wdudokvanheel.neural.neat.NeatConfiguration;
+import nl.wdudokvanheel.neural.neat.NeatContext;
+import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
+import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
+import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
 import nl.wdudokvanheel.neural.neat.mutation.*;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import nl.wdudokvanheel.neural.neat.service.MutationService;
