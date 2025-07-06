@@ -2,9 +2,10 @@ package nl.wdudokvanheel.neural.neat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Species {
-    private static int counter = 0;
+    private static AtomicInteger id_counter = new AtomicInteger(0);
     public int id;
     private List<Creature> creatures = new ArrayList<>();
     private Creature representative;
@@ -13,7 +14,7 @@ public class Species {
     public int lastImprovement = 0;
 
     public Species(Creature representative) {
-        id = ++counter;
+        id = id_counter.getAndIncrement();
         this.representative = representative;
         addCreature(representative);
     }
