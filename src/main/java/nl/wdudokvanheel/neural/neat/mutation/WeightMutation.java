@@ -7,10 +7,10 @@ public class WeightMutation extends AbstractMutation {
     private RandomWeightMutation randomWeightMutation;
     private ShiftWeightMutation shiftWeightMutation;
 
-    public WeightMutation(double randomizeWeightsProbability, double mutateWeightPerturbationPower) {
+    public WeightMutation(double randomizeWeightsProbability, double mutateWeightPerturbationPower, double mutateConnectionWeightProbability) {
         this.randomizeWeightsProbability = randomizeWeightsProbability;
-        this.randomWeightMutation = new RandomWeightMutation();
-        this.shiftWeightMutation = new ShiftWeightMutation(mutateWeightPerturbationPower);
+        this.randomWeightMutation = new RandomWeightMutation(mutateConnectionWeightProbability);
+        this.shiftWeightMutation = new ShiftWeightMutation(mutateWeightPerturbationPower, mutateConnectionWeightProbability);
     }
 
     @Override

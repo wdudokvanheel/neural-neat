@@ -39,7 +39,7 @@ public class NeatEvolution {
 
             //Don't mutate the first creature
             if (count > 1) {
-                new RandomWeightMutation().mutate(clone);
+                new RandomWeightMutation(1.0).mutate(clone);
             }
 
             if (context.configuration.setInitialLinks) {
@@ -129,7 +129,8 @@ public class NeatEvolution {
             count++;
             Genome clone = context.blueprint.getGenome().clone();
 
-            new RandomWeightMutation().mutate(clone);
+            // Randomize all connection weights
+            new RandomWeightMutation(1.0).mutate(clone);
 
             if (context.configuration.setInitialLinks) {
                 initialConnectionState(clone, context.configuration.initialLinkActiveProbability);

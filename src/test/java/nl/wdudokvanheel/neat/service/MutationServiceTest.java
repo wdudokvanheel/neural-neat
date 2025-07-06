@@ -161,8 +161,7 @@ class MutationServiceTest {
     @Test
     @DisplayName("RandomWeightMutation changes weight distribution (σ≈SIGMA)")
     void randomWeightSigma() {
-        RandomWeightMutation mut = new RandomWeightMutation();
-        InnovationService inv = new InnovationService();
+        RandomWeightMutation mut = new RandomWeightMutation(1.0);
         Genome g = staticRoomyGenome();
 
         List<Double> delta = new ArrayList<>();

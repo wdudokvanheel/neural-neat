@@ -22,7 +22,8 @@ public class MutationService {
         addMutation(
                 new WeightMutation(
                         configuration.mutateRandomizeWeightsProbability,
-                        configuration.mutateWeightPerturbationPower
+                        configuration.mutateWeightPerturbationPower,
+                        configuration.mutateConnectionWeightProbability
                 ),
                 configuration.mutateWeightProbability
         );

@@ -22,6 +22,7 @@ public class NeatConfiguration {
     public double mutateAddNeuronProbability = 0.03;
     public double mutateToggleConnectionProbability = 0.01;
     public double mutateWeightProbability = 0.8;
+    public double mutateConnectionWeightProbability = 0.5;
     public double mutateRandomizeWeightsProbability = 0.1;
     public double mutateWeightPerturbationPower = 0.5;
     public boolean eliminateStagnantSpecies = true;

@@ -95,7 +95,12 @@ Below is a comprehensive list of all configuration options, along with their pur
 
 * **`mutateWeightProbability`** (`double`, default: `0.8`)
 
-    * Probability of performing a weight mutation (either randomize or perturb weights).
+    * Probability of attempting a weight mutation on the genome (either randomize or perturb weights), each connection's
+      chance of being modified is set with `mutateConnectionWeightProbability`
+
+* **`mutateConnectionWeightProbability`** (`double`, default `0.5`)
+
+    * Chance each connections gets the selected weight mutation (from mutateWeightProbability) applied
 
 * **`mutateRandomizeWeightsProbability`** (`double`, default: `0.1`)
 

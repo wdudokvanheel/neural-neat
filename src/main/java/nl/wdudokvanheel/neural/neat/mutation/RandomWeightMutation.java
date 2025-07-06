@@ -5,6 +5,11 @@ import nl.wdudokvanheel.neural.neat.genome.Genome;
 
 public class RandomWeightMutation extends AbstractMutation {
     private static final double SIGMA = 0.5;
+    private double mutateConnectionWeightProbability;
+
+    public RandomWeightMutation(double mutateConnectionWeightProbability) {
+        this.mutateConnectionWeightProbability = mutateConnectionWeightProbability;
+    }
 
     @Override
     public void mutate(Genome genome) {
@@ -13,8 +18,10 @@ public class RandomWeightMutation extends AbstractMutation {
                 continue;
             }
 
-            double w = connection.getWeight() + getRandomGaussian(SIGMA);
-            connection.setWeight(w);
+            if (random.nextDouble() < mutateConnectionWeightProbability) {
+                double w = connection.getWeight() + getRandomGaussian(SIGMA);
+                connection.setWeight(w);
+            }
         }
     }
 }

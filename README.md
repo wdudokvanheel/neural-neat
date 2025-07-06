@@ -67,7 +67,7 @@ JAR yourself if you prefer.
     <dependency>
             <groupId>nl.wdudokvanheel</groupId>
             <artifactId>neat</artifactId>
-            <version>1.0.2</version>
+            <version>1.1.1</version>
     </dependency>
 ```
 
