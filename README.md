@@ -21,6 +21,7 @@ Miikkulainen in 2002.
 
 ## Highlights and Technical Details
 
+* **Highly Configurable**: Expose all NEAT parameters via NeatConfiguration (see [Configuration](docs/configuration.md) docs)
 * **Speciation**: Implements distance metric with excess, disjoint, and weight-difference terms; adjustable thresholds.
 * **MutationService**: Supports single or multiple mutations per genome; configurable probabilities for each operator.
 * **CrossoverService**: Aligns matching genes by innovation IDs, handles excess/disjoint genes, respects disable flags,
