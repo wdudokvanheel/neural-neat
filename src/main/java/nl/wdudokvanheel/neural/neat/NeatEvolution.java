@@ -25,6 +25,11 @@ public class NeatEvolution {
         return context;
     }
 
+    public static NeatContext createContext(CreatureFactory factory, NeatConfiguration configuration) {
+        NeatContext context = new NeatContext(factory, configuration);
+        return context;
+    }
+
     public static void generateInitialPopulation(NeatContext context, Creature blueprint) {
         context.blueprint = blueprint;
         logger.trace("Generating initial population of {}", context.configuration.populationSize);

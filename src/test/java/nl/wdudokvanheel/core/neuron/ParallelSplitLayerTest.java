@@ -52,15 +52,15 @@ class ParallelSplitLayerTest {
 
         // COLLECT layers
         List<NeuronGene> inputs  = g.getNeurons().stream().filter(n -> n.getType() == NeuronGeneType.INPUT).toList();
-        List<NeuronGene> hiddens = g.getNeurons().stream().filter(n -> n.getType() == NeuronGeneType.HIDDEN).toList();
+        List<NeuronGene> hidden = g.getNeurons().stream().filter(n -> n.getType() == NeuronGeneType.HIDDEN).toList();
         List<NeuronGene> outputs = g.getNeurons().stream().filter(n -> n.getType() == NeuronGeneType.OUTPUT).toList();
 
         // ASSERT – inputs remain on 0
         inputs.forEach(n -> assertEquals(0, n.getLayer(), "inputs stay on layer 0"));
 
         // both hidden nodes share layer 1
-        hiddens.forEach(n -> assertEquals(1, n.getLayer(), "hidden nodes should be on layer 1"));
-        assertEquals(2, hiddens.size(), "exactly two hidden nodes expected");
+        hidden.forEach(n -> assertEquals(1, n.getLayer(), "hidden nodes should be on layer 1"));
+        assertEquals(2, hidden.size(), "exactly two hidden nodes expected");
 
         // outputs are now on layer 2
         outputs.forEach(n -> assertEquals(2, n.getLayer(), "outputs should shift to layer 2"));

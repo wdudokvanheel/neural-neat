@@ -14,6 +14,6 @@ public class ToggleConnectionMutation extends AbstractMutation {
         ConnectionGene connection = getRandomConnection(genome);
         connection.toggleEnabled();
         double w = getRandomGaussian(SIGMA);
-        connection.setWeight(WeightUtil.clamp(w));
+        connection.setWeight(w);
     }
 }

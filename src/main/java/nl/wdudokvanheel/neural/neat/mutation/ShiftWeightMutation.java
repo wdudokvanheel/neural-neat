@@ -17,7 +17,7 @@ public class ShiftWeightMutation extends AbstractMutation {
                 continue;
             }
             double p = getRandomGaussian(2) * perturbationPower;
-            connection.setWeight(WeightUtil.clamp(connection.getWeight() + p));
+            connection.setWeight(connection.getWeight() + p);
         }
     }
 }

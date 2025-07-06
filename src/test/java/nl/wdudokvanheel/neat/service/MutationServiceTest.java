@@ -154,36 +154,6 @@ class MutationServiceTest {
     }
 
     @Test
-    @DisplayName("WeightUtil.clamp keeps weights within ±LIMIT")
-    void clampRange() {
-        Random rnd = new Random();
-        for (int i = 0; i < 10_000; i++) {
-            double w = rnd.nextGaussian() * 50;          // extreme random weight
-            double clamped = WeightUtil.clamp(w);
-            assertTrue(clamped <= WeightUtil.LIMIT && clamped >= -WeightUtil.LIMIT,
-                    "clamp failed for " + w);
-        }
-    }
-
-    @Test
-    @DisplayName("ShiftWeightMutation: weight always clamped")
-    void shiftWeightClamp() {
-        InnovationService inv = new InnovationService();
-        Genome g = staticRoomyGenome();
-        // set a near-limit weight so overflow is likely
-        g.getConnectionById(1).setWeight(4.9);
-
-        ShiftWeightMutation mut = new ShiftWeightMutation(100); // huge perturbation
-
-        for (int i = 0; i < 1_000; i++) {
-            mut.mutate(g);
-            g.getConnections().forEach(
-                    c -> assertTrue(Math.abs(c.getWeight()) <= WeightUtil.LIMIT,
-                            "weight out of clamp range: " + c.getWeight()));
-        }
-    }
-
-    @Test
     @DisplayName("RandomWeightMutation changes weight distribution (σ≈SIGMA)")
     void randomWeightSigma() {
         RandomWeightMutation mut = new RandomWeightMutation();

@@ -14,7 +14,7 @@ public class RandomWeightMutation extends AbstractMutation {
             }
 
             double w = connection.getWeight() + getRandomGaussian(SIGMA);
-            connection.setWeight(WeightUtil.clamp(w));
+            connection.setWeight(w);
         }
     }
 }
