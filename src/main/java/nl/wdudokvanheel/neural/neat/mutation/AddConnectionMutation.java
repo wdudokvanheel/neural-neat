@@ -64,7 +64,7 @@ public class AddConnectionMutation extends AbstractMutation {
         //Remove source as a potential targets to prevent a self referencing neuron connection
         targets.remove(source);
 
-        if (targets.size() == 0) {
+        if (targets.isEmpty()) {
             return targets;
         }
 
@@ -76,7 +76,7 @@ public class AddConnectionMutation extends AbstractMutation {
                 continue;
             }
 
-            if (source.getLayer() >= target.getLayer() && target.getType() != NeuronGeneType.INPUT && source.getType() != NeuronGeneType.OUTPUT) {
+            if (source.getLayer() >= target.getLayer()) {
                 iterator.remove();
             }
         }

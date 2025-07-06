@@ -5,15 +5,11 @@ import nl.wdudokvanheel.neural.neat.model.Genome;
 import nl.wdudokvanheel.neural.neat.model.NeuronGene;
 import nl.wdudokvanheel.neural.neat.model.NeuronGeneType;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AddNeuronMutation extends AbstractMutation {
-    private Logger logger = LoggerFactory.getLogger(AddNeuronMutation.class);
-
     private InnovationService innovationService;
 
     public AddNeuronMutation(InnovationService innovationService) {
@@ -22,14 +18,14 @@ public class AddNeuronMutation extends AbstractMutation {
 
     @Override
     public void mutate(Genome genome) {
-        if (genome.getConnections().size() == 0) {
+        if (genome.getConnections().isEmpty()) {
             return;
         }
 
         List<ConnectionGene> connections = new ArrayList<>(genome.getConnections());
 
         //Keep trying to replace a connection with a neuron until it succeeds or when there are no more possible connections to replace
-        while (connections.size() > 0) {
+        while (!connections.isEmpty()) {
             ConnectionGene connection = getRandomElement(connections);
 
             //Check if the connection has been created before, to avoid making an unused id
@@ -73,7 +69,7 @@ public class AddNeuronMutation extends AbstractMutation {
         NeuronGene source = genome.getNeuronById(connection.getSource());
         NeuronGene target = genome.getNeuronById(connection.getTarget());
 
-        if (target.getLayer() - source.getLayer() == 1) {
+        if (source.getLayer() <= target.getLayer()) {
             moveNeuronsOneLayer(genome, target.getLayer());
         }
 

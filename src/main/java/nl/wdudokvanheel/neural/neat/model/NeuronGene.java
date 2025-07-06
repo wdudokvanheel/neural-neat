@@ -27,8 +27,9 @@ public class NeuronGene {
         return layer;
     }
 
-    public void setLayer(int layer) {
+    public NeuronGene setLayer(int layer) {
         this.layer = layer;
+        return this;
     }
 
     @Override
