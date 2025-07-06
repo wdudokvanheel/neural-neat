@@ -12,7 +12,7 @@ public class NeuronGene {
     }
 
     public NeuronGene(NeuronGeneType type, int innovationId) {
-        this(type, innovationId, 0);
+        this(type, innovationId, type == NeuronGeneType.OUTPUT ? 1 : 0);
     }
 
     public NeuronGeneType getType() {
@@ -27,9 +27,8 @@ public class NeuronGene {
         return layer;
     }
 
-    public NeuronGene setLayer(int layer) {
+    public void setLayer(int layer) {
         this.layer = layer;
-        return this;
     }
 
     @Override

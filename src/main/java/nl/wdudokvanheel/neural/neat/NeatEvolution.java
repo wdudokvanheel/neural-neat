@@ -21,13 +21,11 @@ public class NeatEvolution {
      * @return A neat context
      */
     public static NeatContext createContext(CreatureFactory factory) {
-        NeatContext context = new NeatContext(factory);
-        return context;
+        return new NeatContext(factory);
     }
 
     public static NeatContext createContext(CreatureFactory factory, NeatConfiguration configuration) {
-        NeatContext context = new NeatContext(factory, configuration);
-        return context;
+        return new NeatContext(factory, configuration);
     }
 
     public static void generateInitialPopulation(NeatContext context, Creature blueprint) {
@@ -49,7 +47,6 @@ public class NeatEvolution {
             }
 
             Creature creature = context.creatureFactory.createNewCreature(clone);
-//			NeatFlappy.evolution.getLatestGeneration().addCreature((NeatBird) creature, CreatureSource.INIT);
             context.creatures.add(creature);
             count++;
         }
