@@ -31,6 +31,30 @@ public class Genome {
         return neurons;
     }
 
+    public List<InputNeuronGene> getInputNeurons() {
+        return neurons
+                .stream()
+                .filter(neuron -> neuron instanceof InputNeuronGene)
+                .map(neuron -> (InputNeuronGene) neuron)
+                .toList();
+    }
+
+    public List<HiddenNeuronGene> getHiddenNeurons() {
+        return neurons
+                .stream()
+                .filter(neuron -> neuron instanceof HiddenNeuronGene)
+                .map(neuron -> (HiddenNeuronGene) neuron)
+                .toList();
+    }
+
+    public List<OutputNeuronGene> getOutputNeurons() {
+        return neurons
+                .stream()
+                .filter(neuron -> neuron instanceof OutputNeuronGene)
+                .map(neuron -> (OutputNeuronGene) neuron)
+                .toList();
+    }
+
     public List<ConnectionGene> getConnections() {
         return connections;
     }
@@ -90,7 +114,7 @@ public class Genome {
         return hasConnection(connection.getInnovationId());
     }
 
-    public Genome clone(){
+    public Genome clone() {
         Genome clone = new Genome();
         for (NeuronGene neuron : neurons) {
             clone.addNeuron(neuron.clone());
