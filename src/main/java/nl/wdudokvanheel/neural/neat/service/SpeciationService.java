@@ -1,6 +1,6 @@
 package nl.wdudokvanheel.neural.neat.service;
 
-import nl.wdudokvanheel.neural.neat.Creature;
+import nl.wdudokvanheel.neural.neat.CreatureInterface;
 import nl.wdudokvanheel.neural.neat.NeatConfiguration;
 import nl.wdudokvanheel.neural.neat.NeatContext;
 import nl.wdudokvanheel.neural.neat.Species;
@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class SpeciationService {
+public class SpeciationService<Creature extends CreatureInterface<Creature>> {
     private Logger logger = LoggerFactory.getLogger(SpeciationService.class);
 
     private Random random = new Random();
@@ -20,7 +20,7 @@ public class SpeciationService {
         this.configuration = configuration;
     }
 
-    public List<Species> speciate(List<Creature> creatures, List<Species> species) {
+    public List<Species<Creature>> speciate(List<Creature> creatures, List<Species<Creature>> species) {
         for (Creature creature : creatures) {
             addCreatureToSpecies(species, creature);
         }
@@ -29,9 +29,9 @@ public class SpeciationService {
         return species;
     }
 
-    public void eliminateStagnantSpecies(List<Species> species) {
-        for (Iterator<Species> iterator = species.iterator(); iterator.hasNext(); ) {
-            Species test = iterator.next();
+    public void eliminateStagnantSpecies(List<Species<Creature>> species) {
+        for (Iterator<Species<Creature>> iterator = species.iterator(); iterator.hasNext(); ) {
+            Species<Creature> test = iterator.next();
 
             if (test.getFitness() > test.lastFitness) {
                 test.lastImprovement = 0;
@@ -46,9 +46,9 @@ public class SpeciationService {
         }
     }
 
-    public void eliminateEmptySpecies(List<Species> species) {
-        for (Iterator<Species> iterator = species.iterator(); iterator.hasNext(); ) {
-            Species test = iterator.next();
+    public void eliminateEmptySpecies(List<Species<Creature>> species) {
+        for (Iterator<Species<Creature>> iterator = species.iterator(); iterator.hasNext(); ) {
+            Species<Creature> test = iterator.next();
             if (test.size() == 0) {
                 logger.trace("Removed empty species {}", test);
                 iterator.remove();
@@ -56,13 +56,13 @@ public class SpeciationService {
         }
     }
 
-    public List<Species> createNewGenerationSpecies(NeatContext context) {
-        ArrayList<Species> newSpecies = new ArrayList<>();
+    public List<Species<Creature>> createNewGenerationSpecies(NeatContext<Creature> context) {
+        ArrayList<Species<Creature>> newSpecies = new ArrayList<>();
 
-        for (Species iter : context.species) {
+        for (Species<Creature> iter : context.species) {
             //Get a random creature from the current species as the representative of the new species
             Creature representative = iter.getCreatures().get(random.nextInt(iter.size()));
-            Species replacement = new Species(iter.id, representative);
+            Species<Creature> replacement = new Species<Creature>(iter.id, representative);
             replacement.lastImprovement = iter.lastImprovement;
             replacement.lastFitness = iter.lastFitness;
             newSpecies.add(replacement);
@@ -71,60 +71,59 @@ public class SpeciationService {
         return newSpecies;
     }
 
-    public List<Creature> getChampions(NeatContext context) {
+    public List<Creature> getChampions(NeatContext<Creature> context) {
         ArrayList<Creature> creatures = new ArrayList<>();
-        for (Species iter : context.species) {
+        for (Species<Creature> iter : context.species) {
             if (iter.size() >= context.configuration.minimumSpeciesSizeForChampionCopy) {
                 Creature champion = context.creatureFactory.createNewCreature(iter.getChampion().getGenome().clone());
                 creatures.add(champion);
-			}
+            }
         }
         return creatures;
     }
 
-    public void sortCreatures(List<Species> species) {
+    public void sortCreatures(List<Species<Creature>> species) {
         species.forEach(this::sortCreaturesByScore);
     }
 
-    public void sortCreaturesByScore(Species species) {
+    public void sortCreaturesByScore(Species<Creature> species) {
         species.getCreatures().sort(Comparator.comparingDouble(Creature::getFitness).reversed());
     }
 
-    public List<Species> sortSpeciesByScore(List<Species> species) {
-        return species.stream().sorted(Comparator.comparingDouble(Species::getFitness).reversed()).collect(Collectors.toList());
+    public List<Species<Creature>> sortSpeciesByScore(List<Species<Creature>> species) {
+        return species.stream().sorted(Comparator.comparingDouble(Species<Creature>::getFitness).reversed()).collect(Collectors.toList());
     }
 
-    public void eliminateLeastFitCreatures(List<Species> species) {
-        for (Species iter : species) {
+    public void eliminateLeastFitCreatures(List<Species<Creature>> species) {
+        for (Species<Creature> iter : species) {
             int toEliminate = (int) Math.floor(iter.getCreatures().size() * configuration.bottomElimination);
             logger.trace("Eliminating {} creatures from species {}", toEliminate, iter);
             while (toEliminate > 0) {
-                iter.getCreatures().remove(iter.getCreatures().size() - 1);
+                iter.getCreatures().removeLast();
                 toEliminate--;
             }
             logger.trace("Eliminated creatures from species {}", iter);
         }
     }
 
-    private Species addCreatureToSpecies(List<Species> species, Creature creature) {
+    private void addCreatureToSpecies(List<Species<Creature>> species, Creature creature) {
         //Try to add the creature to any existing species
-        for (Species existingSpecies : species) {
+        for (Species<Creature> existingSpecies : species) {
             //Compare the creature's genome with the representative of the species
             double distance = new GenomeComparison(existingSpecies.getRepresentative().getGenome(), creature.getGenome()).getDistance();
             if (distance < configuration.speciesThreshold) {
                 logger.trace("Adding creature to species");
                 existingSpecies.addCreature(creature);
                 creature.setSpecies(existingSpecies);
-                return existingSpecies;
+                return;
             }
         }
 
         //Creature did not match with any existing species, create a new one
-        Species newSpecies = new Species(creature);
+        Species<Creature> newSpecies = new Species<>(creature);
         species.add(newSpecies);
         creature.setSpecies(newSpecies);
         logger.trace("Creating new species for creature");
 
-        return newSpecies;
     }
 }

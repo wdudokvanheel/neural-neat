@@ -7,7 +7,7 @@ import nl.wdudokvanheel.neural.neat.genome.Genome;
 import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
 import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
 import nl.wdudokvanheel.neural.neat.service.SpeciationService;
-import nl.wdudokvanheel.neural.util.AbstractCreature;
+import nl.wdudokvanheel.neural.util.AbstractCreatureInterface;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SpeciationServiceTest {
 
-    private static class TestCreature extends AbstractCreature {
+    private static class TestCreature extends AbstractCreatureInterface<TestCreature> {
         public TestCreature(Genome g, double fit) {
             super(g);
             setFitness(fit);

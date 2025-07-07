@@ -1,6 +1,6 @@
 package nl.wdudokvanheel.neural.neat.service;
 
-import nl.wdudokvanheel.neural.neat.Creature;
+import nl.wdudokvanheel.neural.neat.CreatureInterface;
 import nl.wdudokvanheel.neural.neat.NeatContext;
 import nl.wdudokvanheel.neural.neat.Species;
 import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
@@ -13,18 +13,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class CrossoverService {
+public class CrossoverService<Creature extends CreatureInterface<Creature>> {
     private Logger logger = LoggerFactory.getLogger(CrossoverService.class);
     private Random random = new Random();
 
-    public List<Creature> createOffspring(NeatContext context, int population) {
+    public List<Creature> createOffspring(NeatContext<Creature> context, int population) {
         ArrayList<Creature> creatures = new ArrayList<>();
 
         if (population <= 0) {
             return creatures;
         }
 
-        List<Species> sorted = context.speciationService.sortSpeciesByScore(context.species);
+        List<Species<Creature>> sorted = context.speciationService.sortSpeciesByScore(context.species);
         double totalFitness = getTotalScore(sorted);
 
         int speciesCount = sorted.size();
@@ -33,7 +33,7 @@ public class CrossoverService {
         int remaining = population;
 
         for (int i = 0; i < speciesCount; i++) {
-            Species s = sorted.get(i);
+            Species<Creature> s = sorted.get(i);
             double exact = totalFitness == 0 ? 0 : (s.getFitness() / totalFitness) * population;
             quota[i] = (int) Math.floor(exact);
             remainder[i] = exact - quota[i];
@@ -77,7 +77,7 @@ public class CrossoverService {
         return creatures;
     }
 
-    private List<Creature> createOffspring(NeatContext context, Species species, int offspring) {
+    private List<Creature> createOffspring(NeatContext<Creature> context, Species<Creature> species, int offspring) {
         List<Creature> creatures = new ArrayList<>();
         if (species.size() == 0) {
             return creatures;
@@ -87,13 +87,13 @@ public class CrossoverService {
             //Get two random creatures
             Creature parentA = selectRandomWeightedCreature(species);
             //Make sure to exclude the other parent
-            Species parentBSpecies = species;
+            Species<Creature> parentBSpecies = species;
 
             if ((random.nextDouble() < context.configuration.interspeciesCrossover && context.species.size() > 1) || species.size() == 1) {
                 parentBSpecies = selectRandomWeightedSpecies(context.species, species);
             }
             // If there is no other species available, add an asexual offspring
-            if(parentBSpecies == null) {
+            if (parentBSpecies == null) {
                 creatures.add(createOffspringWithoutCrossover(context, species, 1).getFirst());
                 continue;
             }
@@ -107,14 +107,14 @@ public class CrossoverService {
         return creatures;
     }
 
-    private Species selectRandomWeightedSpecies(List<Species> species) {
+    private Species<Creature> selectRandomWeightedSpecies(List<Species<Creature>> species) {
         return selectRandomWeightedSpecies(species, null);
     }
 
-    private Species selectRandomWeightedSpecies(List<Species> species, Species exclude) {
+    private Species<Creature> selectRandomWeightedSpecies(List<Species<Creature>> species, Species<Creature> exclude) {
         double totalFitness = 0;
 
-        for (Species iter : species) {
+        for (Species<Creature> iter : species) {
             if (iter == exclude) {
                 continue;
             }
@@ -134,7 +134,7 @@ public class CrossoverService {
 
         double target = random.nextDouble(totalFitness);
         double count = 0;
-        for (Species iter : species) {
+        for (Species<Creature> iter : species) {
             if (iter == exclude) {
                 continue;
             }
@@ -148,7 +148,7 @@ public class CrossoverService {
         return null;
     }
 
-    private Creature crossCreatures(NeatContext context, Creature parentA, Creature parentB) {
+    private Creature crossCreatures(NeatContext<Creature> context, Creature parentA, Creature parentB) {
         Genome fit = parentA.getGenome();
         Genome weak = parentB.getGenome();
 
@@ -162,7 +162,7 @@ public class CrossoverService {
         return context.creatureFactory.createNewCreature(genome);
     }
 
-    private List<Creature> createOffspringWithoutCrossover(NeatContext context, Species species, int offspring) {
+    private List<Creature> createOffspringWithoutCrossover(NeatContext<Creature> context, Species<Creature> species, int offspring) {
         List<Creature> creatures = new ArrayList<>();
 
         for (int i = 0; i < offspring; i++) {
@@ -179,11 +179,11 @@ public class CrossoverService {
         return creatures;
     }
 
-    private Creature selectRandomCreature(Species species) {
+    private Creature selectRandomCreature(Species<Creature> species) {
         return species.getCreatures().get(random.nextInt(species.getCreatures().size()));
     }
 
-    private Creature selectRandomCreature(Species species, Creature exclude) {
+    private Creature selectRandomCreature(Species<Creature> species, Creature exclude) {
         ArrayList<Creature> list = new ArrayList(species.getCreatures());
         list.remove(exclude);
         return list.get(random.nextInt(list.size()));
@@ -195,11 +195,11 @@ public class CrossoverService {
         return list.get(random.nextInt(list.size()));
     }
 
-    private Creature selectRandomWeightedCreature(Species species) {
+    private Creature selectRandomWeightedCreature(Species<Creature> species) {
         return selectRandomWeightedCreature(species, null);
     }
 
-    private Creature selectRandomWeightedCreature(Species species, Creature exclude) {
+    private Creature selectRandomWeightedCreature(Species<Creature> species, Creature exclude) {
         double totalFitness = 0;
 
         for (Creature creature : species.getCreatures()) {
@@ -235,9 +235,9 @@ public class CrossoverService {
         return null;
     }
 
-    private double getTotalScore(List<Species> species) {
+    private double getTotalScore(List<Species<Creature>> species) {
         double total = 0;
-        for (Species iter : species) {
+        for (Species<Creature> iter : species) {
             total += iter.getFitness();
         }
         return total;

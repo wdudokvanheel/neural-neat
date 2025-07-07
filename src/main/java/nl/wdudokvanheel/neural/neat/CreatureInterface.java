@@ -2,14 +2,14 @@ package nl.wdudokvanheel.neural.neat;
 
 import nl.wdudokvanheel.neural.neat.genome.Genome;
 
-public interface Creature {
+public interface CreatureInterface<Creature extends CreatureInterface<Creature>> {
     Genome getGenome();
 
     double getFitness();
 
-    Species getSpecies();
+    Species<Creature> getSpecies();
 
-    void setSpecies(Species species);
+    void setSpecies(Species<Creature> species);
 
     void setFitness(double fitness);
 }

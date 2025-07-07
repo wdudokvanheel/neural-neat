@@ -7,7 +7,7 @@ import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
 import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import nl.wdudokvanheel.neural.neat.service.MutationService;
-import nl.wdudokvanheel.neural.util.AbstractCreature;
+import nl.wdudokvanheel.neural.util.AbstractCreatureInterface;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -19,12 +19,12 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NeatEvolutionTest {
-    private static class DummyCreature extends AbstractCreature {
-        DummyCreature(Genome g) { super(g); }
+    private static class TestCreature extends AbstractCreatureInterface<TestCreature> {
+        TestCreature(Genome g) { super(g); }
     }
 
-    private static class DummyFactory implements CreatureFactory<DummyCreature> {
-        @Override public DummyCreature createNewCreature(Genome g) { return new DummyCreature(g); }
+    private static class DummyFactory implements CreatureFactory<TestCreature> {
+        @Override public TestCreature createNewCreature(Genome g) { return new TestCreature(g); }
     }
 
     /** MutationService stub – does nothing for deterministic tests. */
@@ -46,7 +46,7 @@ class NeatEvolutionTest {
     @Test
     @DisplayName("createContext wires all services and starts empty")
     void contextInitialisation() {
-        NeatContext ctx = NeatEvolution.createContext(new DummyFactory());
+        NeatContext<TestCreature> ctx = NeatEvolution.createContext(new DummyFactory());
 
         assertNotNull(ctx.configuration);
         assertNotNull(ctx.innovationService);
@@ -62,12 +62,12 @@ class NeatEvolutionTest {
     @Test
     @DisplayName("generateInitialPopulation fills population and creates species")
     void initialPopulationProperties() {
-        NeatContext ctx = NeatEvolution.createContext(new DummyFactory());
+        NeatContext<TestCreature> ctx = NeatEvolution.createContext(new DummyFactory());
         ctx.configuration.populationSize = 6;
         ctx.configuration.setInitialLinks = false;   // deterministic
 
         Genome tpl = signedGenome(ctx.innovationService, 0.0);
-        DummyCreature blueprint = new DummyCreature(tpl);
+        TestCreature blueprint = new TestCreature(tpl);
 
         NeatEvolution.generateInitialPopulation(ctx, blueprint);
 
@@ -79,12 +79,12 @@ class NeatEvolutionTest {
     @Test
     @DisplayName("RandomWeightMutation alters at least one cloned genome")
     void mutationOccursOnClones() {
-        NeatContext ctx = NeatEvolution.createContext(new DummyFactory());
+        NeatContext<TestCreature> ctx = NeatEvolution.createContext(new DummyFactory());
         ctx.configuration.populationSize = 4;          // one blueprint + three clones
         ctx.configuration.setInitialLinks = false;
 
         Genome tpl = signedGenome(ctx.innovationService, 0.0);
-        DummyCreature blueprint = new DummyCreature(tpl);
+        TestCreature blueprint = new TestCreature(tpl);
 
         NeatEvolution.generateInitialPopulation(ctx, blueprint);
 
@@ -105,10 +105,10 @@ class NeatEvolutionTest {
         cfg.reproduceWithoutCrossover = 1.0;   // asexual only for determinism
         cfg.setInitialLinks = false;
 
-        NeatContext ctx = new NeatContext(new DummyFactory(), cfg);
+        NeatContext<TestCreature> ctx = new NeatContext(new DummyFactory(), cfg);
         ctx.mutationService = new NoOpMutation(cfg, ctx.innovationService);
 
-        DummyCreature blueprint = new DummyCreature(signedGenome(ctx.innovationService, 0.1));
+        TestCreature blueprint = new TestCreature(signedGenome(ctx.innovationService, 0.1));
         NeatEvolution.generateInitialPopulation(ctx, blueprint);
 
         int before = ctx.generation;
@@ -128,11 +128,11 @@ class NeatEvolutionTest {
         cfg.reproduceWithoutCrossover = 1.0;
         cfg.setInitialLinks      = false;
 
-        NeatContext ctx = new NeatContext(new DummyFactory(), cfg);
+        NeatContext<TestCreature> ctx = new NeatContext(new DummyFactory(), cfg);
         ctx.mutationService = new NoOpMutation(cfg, ctx.innovationService);
 
         // initial population (generates blueprint too)
-        DummyCreature blueprint = new DummyCreature(signedGenome(ctx.innovationService, 0.3));
+        TestCreature blueprint = new TestCreature(signedGenome(ctx.innovationService, 0.3));
         NeatEvolution.generateInitialPopulation(ctx, blueprint);
 
         // assign deterministic fitness 0..4
@@ -140,7 +140,7 @@ class NeatEvolutionTest {
         ctx.creatures.forEach(c -> c.setFitness(f.getAndIncrement()));
 
         // remember the three creatures with fitness 0,1,2 that should be culled
-        Set<Creature> expectedToDie = ctx.creatures.stream()
+        Set<CreatureInterface> expectedToDie = ctx.creatures.stream()
                 .filter(c -> c.getFitness() <= 2)
                 .collect(Collectors.toSet());
 

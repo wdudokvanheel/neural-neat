@@ -12,31 +12,31 @@ import java.util.List;
  * The Neat Context contains all creatures, species and services to run the NEAT evolution logic. The context is completely
  * independent and self-contained, multiple contexts can be used to run different evolutions.
  */
-public class NeatContext {
+public class NeatContext<Creature extends CreatureInterface<Creature>> {
 	public Creature blueprint;
-    public CreatureFactory creatureFactory;
+    public CreatureFactory<Creature> creatureFactory;
     public NeatConfiguration configuration;
     public InnovationService innovationService;
-    public CrossoverService crossoverService;
+    public CrossoverService<Creature> crossoverService;
     public MutationService mutationService;
-    public SpeciationService speciationService;
+    public SpeciationService<Creature> speciationService;
 
     public int generation = 0;
 
     public List<Creature> creatures = new ArrayList<>();
-    public List<Species> species = new ArrayList<>();
+    public List<Species<Creature>> species = new ArrayList<>();
 
-    public NeatContext(CreatureFactory creatureFactory) {
+    public NeatContext(CreatureFactory<Creature> creatureFactory) {
         this(creatureFactory, new NeatConfiguration());
     }
 
-    public NeatContext(CreatureFactory creatureFactory, NeatConfiguration configuration) {
+    public NeatContext(CreatureFactory<Creature> creatureFactory, NeatConfiguration configuration) {
         this.creatureFactory = creatureFactory;
         this.configuration = configuration;
         innovationService = new InnovationService();
-        crossoverService = new CrossoverService();
+        crossoverService = new CrossoverService<>();
         mutationService = new MutationService(configuration, innovationService);
-        speciationService = new SpeciationService(configuration);
+        speciationService = new SpeciationService<>(configuration);
     }
 
     public Creature getFittestCreature() {

@@ -1,6 +1,6 @@
 package nl.wdudokvanheel.neural.util;
 
-import nl.wdudokvanheel.neural.neat.Creature;
+import nl.wdudokvanheel.neural.neat.CreatureInterface;
 import nl.wdudokvanheel.neural.neat.Species;
 import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
 import nl.wdudokvanheel.neural.neat.genome.Genome;
@@ -37,7 +37,7 @@ public class Print {
             logger.debug("\t{}", neuron);
         }
 
-        if (genome.getConnections().size() != 0) {
+        if (!genome.getConnections().isEmpty()) {
             logger.debug("Connections:");
         }
 
@@ -48,7 +48,7 @@ public class Print {
         }
     }
 
-    public static void pop(List<Creature> creatures) {
+    public static <Creature extends CreatureInterface<Creature>> void pop(List<Creature> creatures) {
         for (int i = 0; i < creatures.size(); i++) {
             Creature creature = creatures.get(i);
             logger.debug("Creature #{} - Fitness: {}", i, creature.getFitness());
@@ -57,8 +57,8 @@ public class Print {
         }
     }
 
-    public static void species(List<Species> species) {
-        for (Species iter : species) {
+    public static <Creature extends CreatureInterface<Creature>> void species(List<Species<Creature>> species) {
+        for (Species<Creature> iter : species) {
             logger.debug("Species {} with {} creatures", iter, iter.getCreatures().size());
         }
     }

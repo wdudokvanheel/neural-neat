@@ -1,22 +1,22 @@
 package nl.wdudokvanheel.neural.util;
 
-import nl.wdudokvanheel.neural.neat.Creature;
+import nl.wdudokvanheel.neural.neat.CreatureInterface;
 import nl.wdudokvanheel.neural.neat.Species;
 import nl.wdudokvanheel.neural.neat.genome.Genome;
 
 /**
  * Small helper class to implement the basic requirements for the Creature interface
  */
-public class AbstractCreature implements Creature {
+public class AbstractCreatureInterface<Creature extends CreatureInterface<Creature>> implements CreatureInterface<Creature> {
     private final Genome genome;
-    private Species species;
+    private Species<Creature> species;
     private double score;
 
-    public AbstractCreature(Genome genome) {
+    public AbstractCreatureInterface(Genome genome) {
         this.genome = genome;
     }
 
-    public AbstractCreature(Genome genome, Species species) {
+    public AbstractCreatureInterface(Genome genome, Species<Creature> species) {
         this.genome = genome;
         this.species = species;
     }
@@ -27,11 +27,11 @@ public class AbstractCreature implements Creature {
     }
 
     @Override
-    public Species getSpecies() {
+    public Species<Creature> getSpecies() {
         return species;
     }
 
-    public void setSpecies(Species species) {
+    public void setSpecies(Species<Creature> species) {
         this.species = species;
     }
 

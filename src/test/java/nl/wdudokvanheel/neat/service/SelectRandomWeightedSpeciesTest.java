@@ -3,7 +3,7 @@ package nl.wdudokvanheel.neat.service;
 import nl.wdudokvanheel.neural.neat.Species;
 import nl.wdudokvanheel.neural.neat.genome.Genome;
 import nl.wdudokvanheel.neural.neat.service.CrossoverService;
-import nl.wdudokvanheel.neural.util.AbstractCreature;
+import nl.wdudokvanheel.neural.util.AbstractCreatureInterface;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -22,15 +22,15 @@ class SelectRandomWeightedSpeciesTest {
     /* ---------- helpers -------------------------------------------------- */
 
     /** Minimal creature that lets us set fitness directly. */
-    private static class DummyCreature extends AbstractCreature {
-        DummyCreature(double fitness) {
+    private static class TestCreature extends AbstractCreatureInterface<TestCreature> {
+        TestCreature(double fitness) {
             super(new Genome());
             setFitness(fitness);
         }
     }
 
     private static Species species(double fitness) {
-        return new Species(new DummyCreature(fitness));
+        return new Species(new TestCreature(fitness));
     }
 
     private static Method privateSelector(boolean withExclude) throws Exception {

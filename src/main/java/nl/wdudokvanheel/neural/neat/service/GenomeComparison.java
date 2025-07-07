@@ -41,17 +41,15 @@ public class GenomeComparison {
     }
 
     private void calculateValues() {
-        calculateConnectionValues();                       // neurons omitted
+        calculateConnectionValues();
 
-        int n = Math.max(
-                fitParent.getConnections().size(),
-                weakParent.getConnections().size()
-        );
-        if (n == 0) n = 1;                                 // avoid divide-by-zero
+        int n = Math.max(fitParent.getConnections().size(), weakParent.getConnections().size());
+        // avoid divide-by-zero
+        if (n == 0) {
+            n = 1;
+        }
 
-        distance = (excessCoefficient   * excessConnections   / n)
-                + (disjointCoefficient * disjointConnections / n)
-                + (weightCoefficient   * averageWeightDifference);
+        distance = (excessCoefficient * excessConnections / n) + (disjointCoefficient * disjointConnections / n) + (weightCoefficient * averageWeightDifference);
     }
 
     private void calculateConnectionValues() {

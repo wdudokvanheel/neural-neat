@@ -20,15 +20,15 @@ public class NeatEvolution {
      * @param factory The creature factory to generate new creatures
      * @return A neat context
      */
-    public static NeatContext createContext(CreatureFactory factory) {
-        return new NeatContext(factory);
+    public static <Creature extends CreatureInterface<Creature>> NeatContext<Creature> createContext(CreatureFactory<Creature> factory) {
+        return new NeatContext<>(factory);
     }
 
-    public static NeatContext createContext(CreatureFactory factory, NeatConfiguration configuration) {
-        return new NeatContext(factory, configuration);
+    public static <Creature extends CreatureInterface<Creature>> NeatContext<Creature> createContext(CreatureFactory<Creature> factory, NeatConfiguration configuration) {
+        return new NeatContext<>(factory, configuration);
     }
 
-    public static void generateInitialPopulation(NeatContext context, Creature blueprint) {
+    public static <Creature extends CreatureInterface<Creature>> void generateInitialPopulation(NeatContext<Creature> context, Creature blueprint) {
         context.blueprint = blueprint;
         logger.trace("Generating initial population of {}", context.configuration.populationSize);
         int count = 1;
@@ -52,7 +52,7 @@ public class NeatEvolution {
         }
 
         //Speciate initial pop
-        context.species = context.speciationService.speciate(context.creatures, new ArrayList<Species>());
+        context.species = context.speciationService.speciate(context.creatures, new ArrayList<>());
     }
 
     private static void initialConnectionState(Genome genome, double linkProbability) {
@@ -61,7 +61,7 @@ public class NeatEvolution {
         }
     }
 
-    public static void nextGeneration(NeatContext context) {
+    public static <Creature extends CreatureInterface<Creature>> void nextGeneration(NeatContext<Creature> context) {
         context.generation++;
         logger.trace("");
         logger.trace("===== Starting generation {} =====", context.generation);
@@ -80,7 +80,7 @@ public class NeatEvolution {
         context.speciationService.eliminateLeastFitCreatures(context.species);
 
         //Create new species with random representatives and a clone of the best performing creature
-        List<Species> newSpecies = context.speciationService.createNewGenerationSpecies(context);
+        List<Species<Creature>> newSpecies = context.speciationService.createNewGenerationSpecies(context);
 
         int newEmptyCreatures = (int) (context.configuration.populationSize * context.configuration.newCreaturesPerGeneration);
         logger.trace("Creating {} new empty creatures", newEmptyCreatures);
@@ -122,7 +122,7 @@ public class NeatEvolution {
         }
     }
 
-    private static ArrayList<Creature> createNewCreatures(NeatContext context, int creatures) {
+    private static <Creature extends CreatureInterface<Creature>> ArrayList<Creature> createNewCreatures(NeatContext<Creature> context, int creatures) {
         ArrayList<Creature> result = new ArrayList<>();
         int count = 0;
         while (count < creatures) {

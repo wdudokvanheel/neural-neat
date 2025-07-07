@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Species {
+public class Species<Creature extends CreatureInterface<Creature>> {
     private static AtomicInteger id_counter = new AtomicInteger(0);
     public int id;
     private List<Creature> creatures = new ArrayList<>();
@@ -61,7 +61,7 @@ public class Species {
      * @return
      */
     public double getFitness() {
-        if (creatures.size() == 0)
+        if (creatures.isEmpty())
             return 0;
 
         double total = 0;
