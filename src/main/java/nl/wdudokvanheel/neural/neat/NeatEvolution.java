@@ -58,6 +58,9 @@ public class NeatEvolution {
     private static void initialConnectionState(Genome genome, double linkProbability) {
         for (ConnectionGene connection : genome.getConnections()) {
             connection.setEnabled(random.nextDouble() < linkProbability);
+            if(connection.isEnabled()){
+                connection.setWeight(random.nextDouble() * 8 - 4);
+            }
         }
     }
 
