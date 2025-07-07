@@ -1,9 +1,6 @@
 package nl.wdudokvanheel.neat.network;
 
-import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
-import nl.wdudokvanheel.neural.neat.genome.Genome;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
+import nl.wdudokvanheel.neural.neat.genome.*;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import nl.wdudokvanheel.neural.network.Network;
 import org.junit.jupiter.api.DisplayName;
@@ -46,17 +43,17 @@ class XorNetworkTest {
 
         // inputs & bias on layer 0
         g.addNeurons(
-                new NeuronGene(NeuronGeneType.INPUT, aId, 0),
-                new NeuronGene(NeuronGeneType.INPUT, bId, 0),
-                new NeuronGene(NeuronGeneType.INPUT, biasId, 0)
+                new InputNeuronGene(aId, 0),
+                new InputNeuronGene(bId, 0),
+                new InputNeuronGene(biasId, 0)
         );
         // hidden layer 1
         g.addNeurons(
-                new NeuronGene(NeuronGeneType.HIDDEN, h0Id, 1),
-                new NeuronGene(NeuronGeneType.HIDDEN, h1Id, 1)
+                new HiddenNeuronGene(h0Id, 1),
+                new HiddenNeuronGene(h1Id, 1)
         );
         // output layer 2
-        g.addNeuron(new NeuronGene(NeuronGeneType.OUTPUT, outId, 2));
+        g.addNeuron(new OutputNeuronGene(outId, 2));
 
         // ─── Connections with hand-tuned weights ───────────────────
         // In A / B → Hid0  (20, 20, -10)

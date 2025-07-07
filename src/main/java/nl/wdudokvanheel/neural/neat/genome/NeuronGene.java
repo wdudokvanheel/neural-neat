@@ -1,22 +1,19 @@
 package nl.wdudokvanheel.neural.neat.genome;
 
-public class NeuronGene {
-    private NeuronGeneType type;
-    private int innovationId;
+/**
+ * Base class for all neuron genes.
+ */
+public abstract class NeuronGene {
+    private final int innovationId;
     private int layer;
 
-    public NeuronGene(NeuronGeneType type, int innovationId, int layer) {
-        this.type = type;
+    protected NeuronGene(int innovationId, int layer) {
         this.innovationId = innovationId;
         this.layer = layer;
     }
 
-    public NeuronGene(NeuronGeneType type, int innovationId) {
-        this(type, innovationId, type == NeuronGeneType.OUTPUT ? 1 : 0);
-    }
-
-    public NeuronGeneType getType() {
-        return type;
+    protected NeuronGene(int innovationId) {
+        this(innovationId, 0);
     }
 
     public int getInnovationId() {
@@ -32,12 +29,11 @@ public class NeuronGene {
     }
 
     @Override
-    public NeuronGene clone() {
-        return new NeuronGene(type, innovationId, layer);
-    }
+    public abstract NeuronGene clone();
 
     @Override
     public String toString() {
+        String type = getClass().getSimpleName().replace("NeuronGene", "");
         return "Neuron #" + getInnovationId() + " " + type + (layer > 0 ? " Layer " + layer : "");
     }
 }

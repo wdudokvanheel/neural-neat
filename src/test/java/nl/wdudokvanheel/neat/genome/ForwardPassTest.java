@@ -2,8 +2,8 @@ package nl.wdudokvanheel.neat.genome;
 
 import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
 import nl.wdudokvanheel.neural.neat.genome.Genome;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
+import nl.wdudokvanheel.neural.neat.genome.InputNeuronGene;
+import nl.wdudokvanheel.neural.neat.genome.OutputNeuronGene;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import nl.wdudokvanheel.neural.network.Network;
 import org.junit.jupiter.api.DisplayName;
@@ -35,8 +35,8 @@ class ForwardPassTest {
         int outId = inv.getOutputNodeInnovationId(0);
 
         Genome g = new Genome();
-        g.addNeuron(new NeuronGene(NeuronGeneType.INPUT, inId, 0));
-        g.addNeuron(new NeuronGene(NeuronGeneType.OUTPUT, outId, 1));
+        g.addNeuron(new InputNeuronGene(inId, 0));
+        g.addNeuron(new OutputNeuronGene(outId, 1));
 
         int connId = inv.getConnectionInnovationId(inId, outId);
         g.addConnection(new ConnectionGene(connId, inId, outId, weight));

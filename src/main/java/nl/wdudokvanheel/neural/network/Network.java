@@ -1,8 +1,6 @@
 package nl.wdudokvanheel.neural.network;
 
-import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
-import nl.wdudokvanheel.neural.neat.genome.Genome;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
+import nl.wdudokvanheel.neural.neat.genome.*;
 import nl.wdudokvanheel.neural.network.neuron.Connection;
 import nl.wdudokvanheel.neural.network.neuron.InputNeuron;
 import nl.wdudokvanheel.neural.network.neuron.Neuron;
@@ -30,10 +28,12 @@ public class Network {
     public Network(Genome genome) {
         this();
         for (NeuronGene gene : genome.getNeurons()) {
-            switch (gene.getType()) {
-                case INPUT -> addNeuron(new InputNeuron(gene.getInnovationId()));
-                case HIDDEN -> addNeuron(new Neuron(gene.getInnovationId(), gene.getLayer()));
-                case OUTPUT -> addNeuron(new OutputNeuron(gene.getInnovationId(), gene.getLayer()));
+            if (gene instanceof InputNeuronGene) {
+                addNeuron(new InputNeuron(gene.getInnovationId()));
+            } else if (gene instanceof OutputNeuronGene) {
+                addNeuron(new OutputNeuron(gene.getInnovationId(), gene.getLayer()));
+            } else { // Hidden
+                addNeuron(new Neuron(gene.getInnovationId(), gene.getLayer()));
             }
         }
 

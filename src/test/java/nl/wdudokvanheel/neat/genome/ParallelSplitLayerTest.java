@@ -1,9 +1,6 @@
 package nl.wdudokvanheel.neat.genome;
 
-import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
-import nl.wdudokvanheel.neural.neat.genome.Genome;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
+import nl.wdudokvanheel.neural.neat.genome.*;
 import nl.wdudokvanheel.neural.neat.mutation.AddNeuronMutation;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import org.junit.jupiter.api.Test;
@@ -28,16 +25,16 @@ class ParallelSplitLayerTest {
         int in0 = innovation.getInputNodeInnovationId(0);
         int in1 = innovation.getInputNodeInnovationId(1);
         g.addNeurons(
-                new NeuronGene(NeuronGeneType.INPUT, in0, 0),
-                new NeuronGene(NeuronGeneType.INPUT, in1, 0)
+                new InputNeuronGene(in0, 0),
+                new InputNeuronGene(in1, 0)
         );
 
         // 2 outputs on layer 1
         int out0 = innovation.getOutputNodeInnovationId(0);
         int out1 = innovation.getOutputNodeInnovationId(1);
         g.addNeurons(
-                new NeuronGene(NeuronGeneType.OUTPUT, out0, 1),
-                new NeuronGene(NeuronGeneType.OUTPUT, out1, 1)
+                new OutputNeuronGene(out0, 1),
+                new OutputNeuronGene(out1, 1)
         );
 
         // parallel connections
@@ -51,9 +48,9 @@ class ParallelSplitLayerTest {
         mut.replaceConnectionWithNeuron(g, c1);
 
         // COLLECT layers
-        List<NeuronGene> inputs  = g.getNeurons().stream().filter(n -> n.getType() == NeuronGeneType.INPUT).toList();
-        List<NeuronGene> hidden = g.getNeurons().stream().filter(n -> n.getType() == NeuronGeneType.HIDDEN).toList();
-        List<NeuronGene> outputs = g.getNeurons().stream().filter(n -> n.getType() == NeuronGeneType.OUTPUT).toList();
+        List<NeuronGene> inputs  = g.getNeurons().stream().filter(n -> n instanceof InputNeuronGene).toList();
+        List<NeuronGene> hidden = g.getNeurons().stream().filter(n -> n instanceof HiddenNeuronGene).toList();
+        List<NeuronGene> outputs = g.getNeurons().stream().filter(n -> n instanceof OutputNeuronGene).toList();
 
         // ASSERT – inputs remain on 0
         inputs.forEach(n -> assertEquals(0, n.getLayer(), "inputs stay on layer 0"));
@@ -75,16 +72,16 @@ class ParallelSplitLayerTest {
         int in0 = innovation.getInputNodeInnovationId(0);
         int in1 = innovation.getInputNodeInnovationId(1);
         g.addNeurons(
-                new NeuronGene(NeuronGeneType.INPUT, in0, 0),
-                new NeuronGene(NeuronGeneType.INPUT, in1, 0)
+                new InputNeuronGene(in0, 0),
+                new InputNeuronGene(in1, 0)
         );
 
         // outputs (layer 1)
         int out0 = innovation.getOutputNodeInnovationId(0);
         int out1 = innovation.getOutputNodeInnovationId(1);
         g.addNeurons(
-                new NeuronGene(NeuronGeneType.OUTPUT, out0, 1),
-                new NeuronGene(NeuronGeneType.OUTPUT, out1, 1)
+                new OutputNeuronGene(out0, 1),
+                new OutputNeuronGene(out1, 1)
         );
 
         // direct connections
@@ -99,7 +96,7 @@ class ParallelSplitLayerTest {
 
         // check intermediate state
         NeuronGene hidden0 = g.getNeurons().stream()
-                .filter(n -> n.getType() == NeuronGeneType.HIDDEN)
+                .filter(n -> n instanceof HiddenNeuronGene)
                 .findFirst().orElseThrow();
         assertEquals(1, hidden0.getLayer(), "first hidden node on layer 1");
         assertEquals(2, g.getNeuronById(out0).getLayer(), "out0 shifted to layer 2");
@@ -110,14 +107,14 @@ class ParallelSplitLayerTest {
 
         // collect hidden nodes
         List<NeuronGene> hiddens = g.getNeurons().stream()
-                .filter(n -> n.getType() == NeuronGeneType.HIDDEN)
+                .filter(n -> n instanceof HiddenNeuronGene)
                 .toList();
 
         // ASSERT: both hidden nodes share layer 1; outputs remain on layer 2
         assertEquals(2, hiddens.size(), "two hidden nodes expected");
         hiddens.forEach(h -> assertEquals(1, h.getLayer(), "hidden nodes should share layer 1"));
         g.getNeurons().stream()
-                .filter(n -> n.getType() == NeuronGeneType.OUTPUT)
+                .filter(n -> n instanceof OutputNeuronGene)
                 .forEach(o -> assertEquals(2, o.getLayer(), "outputs stay on layer 2"));
     }
 }

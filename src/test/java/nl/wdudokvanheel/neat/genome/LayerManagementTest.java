@@ -1,9 +1,6 @@
 package nl.wdudokvanheel.neat.genome;
 
-import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
-import nl.wdudokvanheel.neural.neat.genome.Genome;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
+import nl.wdudokvanheel.neural.neat.genome.*;
 import nl.wdudokvanheel.neural.neat.mutation.AddConnectionMutation;
 import nl.wdudokvanheel.neural.neat.mutation.AddNeuronMutation;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
@@ -25,9 +22,9 @@ class LayerManagementTest {
     @DisplayName("Assigning layers when adding neurons & connections")
     void layerAssignmentFromGenome() {
         Genome g = new Genome();
-        g.addNeuron(new NeuronGene(NeuronGeneType.INPUT, 1, 0));
-        g.addNeuron(new NeuronGene(NeuronGeneType.HIDDEN, 3, 1));
-        g.addNeuron(new NeuronGene(NeuronGeneType.OUTPUT, 2, 2));
+        g.addNeuron(new InputNeuronGene(1, 0));
+        g.addNeuron(new HiddenNeuronGene(3, 1));
+        g.addNeuron(new OutputNeuronGene(2, 2));
         g.addConnection(new ConnectionGene(1, 1, 3, 1.0));
         g.addConnection(new ConnectionGene(2, 3, 2, 1.0));
 
@@ -53,8 +50,8 @@ class LayerManagementTest {
         int in = inv.getInputNodeInnovationId(0);  // layer 0
         int out = inv.getOutputNodeInnovationId(0); // layer 1
 
-        g.addNeuron(new NeuronGene(NeuronGeneType.INPUT, in, 0));
-        g.addNeuron(new NeuronGene(NeuronGeneType.OUTPUT, out, 1));
+        g.addNeuron(new InputNeuronGene(in, 0));
+        g.addNeuron(new OutputNeuronGene(out, 1));
         ConnectionGene firstEdge = new ConnectionGene(inv.getConnectionInnovationId(in, out), in, out, 1.0);
         g.addConnection(firstEdge);
 
@@ -65,7 +62,7 @@ class LayerManagementTest {
 
         // identify the new hidden node & its edge to the output
         NeuronGene h1 = g.getNeurons().stream()
-                .filter(n -> n.getType() == NeuronGeneType.HIDDEN)
+                .filter(n -> n instanceof HiddenNeuronGene)
                 .findFirst().get();
         ConnectionGene edgeH1toOut = g.getConnection(h1.getInnovationId(), out);
 
@@ -74,7 +71,7 @@ class LayerManagementTest {
 
         // collect layers
         List<Integer> hiddenLayers = g.getNeurons().stream()
-                .filter(n -> n.getType() == NeuronGeneType.HIDDEN)
+                .filter(n -> n instanceof HiddenNeuronGene)
                 .map(NeuronGene::getLayer)
                 .sorted()
                 .toList();
@@ -95,9 +92,9 @@ class LayerManagementTest {
         int hid = inv.getNeuronInnovationId(1);      // user-defined hidden at L2
         int out = inv.getOutputNodeInnovationId(0);  // L1
 
-        g.addNeuron(new NeuronGene(NeuronGeneType.INPUT, in, 0));
-        g.addNeuron(new NeuronGene(NeuronGeneType.HIDDEN, hid, 2));
-        g.addNeuron(new NeuronGene(NeuronGeneType.OUTPUT, out, 1));
+        g.addNeuron(new InputNeuronGene(in, 0));
+        g.addNeuron(new HiddenNeuronGene(hid, 2));
+        g.addNeuron(new OutputNeuronGene(out, 1));
 
         g.addConnections(
                 connect(inv, in, out),
@@ -123,9 +120,9 @@ class LayerManagementTest {
         int hid = inv.getNeuronInnovationId(1);
         int out = inv.getOutputNodeInnovationId(0);
 
-        g.addNeuron(new NeuronGene(NeuronGeneType.INPUT, in, 0));
-        g.addNeuron(new NeuronGene(NeuronGeneType.HIDDEN, hid, 1));
-        g.addNeuron(new NeuronGene(NeuronGeneType.OUTPUT, out, 2));
+        g.addNeuron(new InputNeuronGene(in, 0));
+        g.addNeuron(new HiddenNeuronGene(hid, 1));
+        g.addNeuron(new OutputNeuronGene(out, 2));
         g.addConnections(
                 connect(inv, in, hid),
                 connect(inv, hid, out)
@@ -155,8 +152,8 @@ class LayerManagementTest {
         // input 0, output 1
         int in = inv.getInputNodeInnovationId(0);
         int out = inv.getOutputNodeInnovationId(0);
-        g.addNeuron(new NeuronGene(NeuronGeneType.INPUT, in, 0));
-        g.addNeuron(new NeuronGene(NeuronGeneType.OUTPUT, out, 1));
+        g.addNeuron(new InputNeuronGene(in, 0));
+        g.addNeuron(new OutputNeuronGene(out, 1));
         g.addConnection(connect(inv, in, out));
 
         // split five times to deepen network
@@ -183,10 +180,10 @@ class LayerManagementTest {
         int hid2 = inv.getNeuronInnovationId(2);
         int out = inv.getOutputNodeInnovationId(0);
 
-        g.addNeuron(new NeuronGene(NeuronGeneType.INPUT, in, 0));
-        g.addNeuron(new NeuronGene(NeuronGeneType.HIDDEN, hid1, 1));
-        g.addNeuron(new NeuronGene(NeuronGeneType.HIDDEN, hid2, 2));
-        g.addNeuron(new NeuronGene(NeuronGeneType.OUTPUT, out, 3));
+        g.addNeuron(new InputNeuronGene(in, 0));
+        g.addNeuron(new HiddenNeuronGene(hid1, 1));
+        g.addNeuron(new HiddenNeuronGene(hid2, 2));
+        g.addNeuron(new OutputNeuronGene(out, 3));
 
         g.addConnections(
                 connect(inv, in, hid1),
@@ -237,10 +234,10 @@ class LayerManagementTest {
             int[] out = {inv.getOutputNodeInnovationId(0),
                     inv.getOutputNodeInnovationId(1)};
 
-            g.addNeuron(new NeuronGene(NeuronGeneType.INPUT, in[0], 0));
-            g.addNeuron(new NeuronGene(NeuronGeneType.INPUT, in[1], 0));
-            g.addNeuron(new NeuronGene(NeuronGeneType.OUTPUT, out[0], 1));
-            g.addNeuron(new NeuronGene(NeuronGeneType.OUTPUT, out[1], 1));
+            g.addNeuron(new InputNeuronGene(in[0], 0));
+            g.addNeuron(new InputNeuronGene(in[1], 0));
+            g.addNeuron(new OutputNeuronGene(out[0], 1));
+            g.addNeuron(new OutputNeuronGene(out[1], 1));
             ConnectionGene[] c = {
                     connect(inv, in[0], out[0]),
                     connect(inv, in[1], out[1])
@@ -252,7 +249,7 @@ class LayerManagementTest {
             mut.replaceConnectionWithNeuron(g, c[order[0]]);
             mut.replaceConnectionWithNeuron(g, c[order[1]]);
 
-            hiddenLayerResults.add(layers(g, NeuronGeneType.HIDDEN));
+            hiddenLayerResults.add(layers(g, HiddenNeuronGene.class));
         }
 
         assertEquals(hiddenLayerResults.get(0), hiddenLayerResults.get(1),
@@ -276,10 +273,10 @@ class LayerManagementTest {
             int out1 = inv.getOutputNodeInnovationId(1);
 
             g.addNeurons(
-                    new NeuronGene(NeuronGeneType.INPUT, in0, 0),
-                    new NeuronGene(NeuronGeneType.INPUT, in1, 0),
-                    new NeuronGene(NeuronGeneType.OUTPUT, out0, 1),
-                    new NeuronGene(NeuronGeneType.OUTPUT, out1, 1)
+                    new InputNeuronGene(in0, 0),
+                    new InputNeuronGene(in1, 0),
+                    new OutputNeuronGene(out0, 1),
+                    new OutputNeuronGene(out1, 1)
             );
             g.addConnections(
                     connect(inv, in0, out0),
@@ -323,9 +320,9 @@ class LayerManagementTest {
     /**
      * Collect layers of neurons of a given type, sorted ascending.
      */
-    private static List<Integer> layers(Genome g, NeuronGeneType t) {
+    private static List<Integer> layers(Genome g, Class<? extends NeuronGene> t) {
         return g.getNeurons().stream()
-                .filter(n -> n.getType() == t)
+                .filter(t::isInstance)
                 .map(NeuronGene::getLayer)
                 .sorted()
                 .collect(Collectors.toList());

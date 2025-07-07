@@ -2,10 +2,7 @@ package nl.wdudokvanheel.neat.service;
 
 import nl.wdudokvanheel.neural.neat.NeatConfiguration;
 import nl.wdudokvanheel.neural.neat.NeatContext;
-import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
-import nl.wdudokvanheel.neural.neat.genome.Genome;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
+import nl.wdudokvanheel.neural.neat.genome.*;
 import nl.wdudokvanheel.neural.neat.mutation.*;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import nl.wdudokvanheel.neural.neat.service.MutationService;
@@ -26,8 +23,8 @@ class MutationServiceTest {
     private static Genome minimalGenome() {
         Genome g = new Genome();
         g.addNeurons(
-                new NeuronGene(NeuronGeneType.INPUT, 1, 0),
-                new NeuronGene(NeuronGeneType.OUTPUT, 2, 1)
+                new InputNeuronGene(1, 0),
+                new OutputNeuronGene(2, 1)
         );
         g.addConnection(new ConnectionGene(1, 1, 2, 0.1, true));
         return g;
@@ -36,10 +33,10 @@ class MutationServiceTest {
     private static Genome staticRoomyGenome() {             // 2 inputs, 1 hidden, 1 output
         Genome g = new Genome();
         g.addNeurons(
-                new NeuronGene(NeuronGeneType.INPUT, 1, 0),
-                new NeuronGene(NeuronGeneType.INPUT, 2, 0),
-                new NeuronGene(NeuronGeneType.HIDDEN, 3, 1),
-                new NeuronGene(NeuronGeneType.OUTPUT, 4, 2)
+                new InputNeuronGene(1, 0),
+                new InputNeuronGene(2, 0),
+                new HiddenNeuronGene(3, 1),
+                new OutputNeuronGene(4, 2)
         );
         g.addConnections(
                 new ConnectionGene(1, 1, 3, 0.2, true),   // so AddNeuron can split
@@ -58,10 +55,10 @@ class MutationServiceTest {
         int out = inv.getOutputNodeInnovationId(0);         // layer 2
 
         g.addNeurons(
-                new NeuronGene(NeuronGeneType.INPUT, in1, 0),
-                new NeuronGene(NeuronGeneType.INPUT, in2, 0),
-                new NeuronGene(NeuronGeneType.HIDDEN, hid, 1),
-                new NeuronGene(NeuronGeneType.OUTPUT, out, 2)
+                new InputNeuronGene(in1, 0),
+                new InputNeuronGene(in2, 0),
+                new HiddenNeuronGene(hid, 1),
+                new OutputNeuronGene(out, 2)
         );
 
         g.addConnections(

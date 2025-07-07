@@ -1,9 +1,6 @@
 package nl.wdudokvanheel.neural.neat.mutation;
 
-import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
-import nl.wdudokvanheel.neural.neat.genome.Genome;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
+import nl.wdudokvanheel.neural.neat.genome.*;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 
 import java.util.Iterator;
@@ -91,7 +88,7 @@ public class AddConnectionMutation extends AbstractMutation {
     private List<NeuronGene> getAvailableConnectionTargets(Genome genome) {
         return genome.getNeurons()
                 .stream()
-                .filter(neuron -> neuron.getType() != NeuronGeneType.INPUT)
+                .filter(neuron -> !(neuron instanceof InputNeuronGene))
                 .collect(Collectors.toList());
     }
 
@@ -102,7 +99,7 @@ public class AddConnectionMutation extends AbstractMutation {
     private List<NeuronGene> getAvailableConnectionSources(Genome genome) {
         return genome.getNeurons()
                 .stream()
-                .filter(neuron -> neuron.getType() != NeuronGeneType.OUTPUT)
+                .filter(neuron -> !(neuron instanceof OutputNeuronGene))
                 .collect(Collectors.toList());
     }
 }

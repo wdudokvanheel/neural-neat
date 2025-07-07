@@ -1,9 +1,6 @@
 package nl.wdudokvanheel.neat.service;
 
-import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
-import nl.wdudokvanheel.neural.neat.genome.Genome;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
+import nl.wdudokvanheel.neural.neat.genome.*;
 import nl.wdudokvanheel.neural.neat.service.CrossoverService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,9 +18,9 @@ class CrossoverServiceEdgeCaseTests {
     private Genome bothDisabledParents() {
         Genome g = new Genome();
         g.addNeurons(
-                new NeuronGene(NeuronGeneType.INPUT,  1, 0),
-                new NeuronGene(NeuronGeneType.HIDDEN, 2, 1),
-                new NeuronGene(NeuronGeneType.OUTPUT, 3, 2)
+                new InputNeuronGene( 1, 0),
+                new HiddenNeuronGene(2, 1),
+                new OutputNeuronGene(3, 2)
         );
         g.addConnections(
                 new ConnectionGene(1, 1, 2,  0.8, false),
@@ -35,10 +32,10 @@ class CrossoverServiceEdgeCaseTests {
     private Genome weakParentWithExtraNeuron() {
         Genome g = new Genome();
         g.addNeurons(
-                new NeuronGene(NeuronGeneType.INPUT,  1, 0),
-                new NeuronGene(NeuronGeneType.HIDDEN, 2, 1),
-                new NeuronGene(NeuronGeneType.HIDDEN, 4, 1), // disjoint neuron
-                new NeuronGene(NeuronGeneType.OUTPUT, 3, 2)
+                new InputNeuronGene( 1, 0),
+                new HiddenNeuronGene(2, 1),
+                new HiddenNeuronGene(4, 1), // disjoint neuron
+                new OutputNeuronGene(3, 2)
         );
         g.addConnections(
                 new ConnectionGene(1, 1, 2, 0.5, true),           // matching

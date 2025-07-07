@@ -1,9 +1,6 @@
 package nl.wdudokvanheel.neat.service;
 
-import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
-import nl.wdudokvanheel.neural.neat.genome.Genome;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
+import nl.wdudokvanheel.neural.neat.genome.*;
 import nl.wdudokvanheel.neural.neat.service.GenomeComparison;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,9 +22,9 @@ class GenomeComparisonTest {
     private static Genome baseGenome() {
         Genome g = new Genome();
         g.addNeurons(
-                new NeuronGene(NeuronGeneType.INPUT, 1, 0),
-                new NeuronGene(NeuronGeneType.INPUT, 2, 0),
-                new NeuronGene(NeuronGeneType.OUTPUT, 3, 1)
+                new InputNeuronGene(1, 0),
+                new InputNeuronGene(2, 0),
+                new OutputNeuronGene(3, 1)
         );
         g.addConnections(
                 new ConnectionGene(1, 1, 3, 0.5),
@@ -39,14 +36,14 @@ class GenomeComparisonTest {
     private static Genome genomeWithExcess() {
         Genome g = baseGenome().clone();
         // add hidden neuron so conn #4 is valid
-        g.addNeuron(new NeuronGene(NeuronGeneType.HIDDEN, 4, 1));
+        g.addNeuron(new HiddenNeuronGene(4, 1));
         g.addConnection(new ConnectionGene(4, 4, 3, 1.0)); // excess (highest id)
         return g;
     }
 
     private static Genome genomeWithDisjoint() {
         Genome g = baseGenome().clone();
-        g.addNeuron(new NeuronGene(NeuronGeneType.HIDDEN, 4, 1));
+        g.addNeuron(new HiddenNeuronGene(4, 1));
         g.addConnection(new ConnectionGene(3, 1, 4, 1.0)); // disjoint (gap id=3)
         return g;
     }

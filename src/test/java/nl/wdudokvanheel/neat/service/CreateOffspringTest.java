@@ -5,8 +5,7 @@ import nl.wdudokvanheel.neural.neat.NeatConfiguration;
 import nl.wdudokvanheel.neural.neat.NeatContext;
 import nl.wdudokvanheel.neural.neat.Species;
 import nl.wdudokvanheel.neural.neat.genome.Genome;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
+import nl.wdudokvanheel.neural.neat.genome.InputNeuronGene;
 import nl.wdudokvanheel.neural.neat.service.CrossoverService;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import nl.wdudokvanheel.neural.neat.service.MutationService;
@@ -62,7 +61,7 @@ class CreateOffspringTest {
      */
     private static Genome genomeWithSignature(int neuronId) {
         Genome g = new Genome();
-        g.addNeuron(new NeuronGene(NeuronGeneType.INPUT, neuronId, 0));
+        g.addNeuron(new InputNeuronGene(neuronId, 0));
         return g;
     }
 

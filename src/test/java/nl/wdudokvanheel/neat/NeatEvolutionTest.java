@@ -3,8 +3,8 @@ package nl.wdudokvanheel.neat;
 import nl.wdudokvanheel.neural.neat.*;
 import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
 import nl.wdudokvanheel.neural.neat.genome.Genome;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
+import nl.wdudokvanheel.neural.neat.genome.InputNeuronGene;
+import nl.wdudokvanheel.neural.neat.genome.OutputNeuronGene;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import nl.wdudokvanheel.neural.neat.service.MutationService;
 import nl.wdudokvanheel.neural.util.AbstractCreatureInterface;
@@ -37,8 +37,8 @@ class NeatEvolutionTest {
         int in  = inv.getInputNodeInnovationId(0);
         int out = inv.getOutputNodeInnovationId(0);
         Genome g = new Genome();
-        g.addNeuron(new NeuronGene(NeuronGeneType.INPUT,  in, 0));
-        g.addNeuron(new NeuronGene(NeuronGeneType.OUTPUT, out, 1));
+        g.addNeuron(new InputNeuronGene(in, 0));
+        g.addNeuron(new OutputNeuronGene(out, 1));
         g.addConnection(new ConnectionGene(inv.getConnectionInnovationId(in, out), in, out, weight));
         return g;
     }

@@ -1,9 +1,6 @@
 package nl.wdudokvanheel.neat.mutation;
 
-import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
-import nl.wdudokvanheel.neural.neat.genome.Genome;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
+import nl.wdudokvanheel.neural.neat.genome.*;
 import nl.wdudokvanheel.neural.neat.mutation.AddNeuronMutation;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import org.junit.jupiter.api.DisplayName;
@@ -21,8 +18,8 @@ class AddNeuronMutationTest {
         int inId = innovation.getInputNodeInnovationId(0);
         int outId = innovation.getOutputNodeInnovationId(0);
 
-        g.addNeuron(new NeuronGene(NeuronGeneType.INPUT, inId, 0));
-        g.addNeuron(new NeuronGene(NeuronGeneType.OUTPUT, outId, 1));
+        g.addNeuron(new InputNeuronGene(inId, 0));
+        g.addNeuron(new OutputNeuronGene(outId, 1));
 
         int connId = innovation.getConnectionInnovationId(inId, outId);
         g.addConnection(new ConnectionGene(connId, inId, outId, 1.0));
@@ -30,7 +27,7 @@ class AddNeuronMutationTest {
         new AddNeuronMutation(innovation).mutate(g);
 
         NeuronGene hidden = g.getNeurons().stream()
-                .filter(n -> n.getType() == NeuronGeneType.HIDDEN)
+                .filter(n -> n instanceof HiddenNeuronGene)
                 .findFirst()
                 .orElseThrow();
         assertEquals(1, hidden.getLayer(), "hidden should occupy the freed-up layer");

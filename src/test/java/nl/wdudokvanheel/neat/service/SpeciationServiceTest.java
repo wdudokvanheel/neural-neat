@@ -4,8 +4,8 @@ import nl.wdudokvanheel.neural.neat.NeatConfiguration;
 import nl.wdudokvanheel.neural.neat.Species;
 import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
 import nl.wdudokvanheel.neural.neat.genome.Genome;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
+import nl.wdudokvanheel.neural.neat.genome.InputNeuronGene;
+import nl.wdudokvanheel.neural.neat.genome.OutputNeuronGene;
 import nl.wdudokvanheel.neural.neat.service.SpeciationService;
 import nl.wdudokvanheel.neural.util.AbstractCreatureInterface;
 import org.junit.jupiter.api.DisplayName;
@@ -30,9 +30,9 @@ class SpeciationServiceTest {
     private static Genome baseGenome(double w1, double w2) {
         Genome g = new Genome();
         g.addNeurons(
-                new NeuronGene(NeuronGeneType.INPUT, 1, 0),
-                new NeuronGene(NeuronGeneType.INPUT, 2, 0),
-                new NeuronGene(NeuronGeneType.OUTPUT, 3, 1)
+                new InputNeuronGene(1, 0),
+                new InputNeuronGene(2, 0),
+                new OutputNeuronGene(3, 1)
         );
         g.addConnections(
                 new ConnectionGene(1, 1, 3, w1, true),

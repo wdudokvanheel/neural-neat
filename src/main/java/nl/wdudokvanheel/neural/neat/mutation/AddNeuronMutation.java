@@ -2,8 +2,8 @@ package nl.wdudokvanheel.neural.neat.mutation;
 
 import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
 import nl.wdudokvanheel.neural.neat.genome.Genome;
+import nl.wdudokvanheel.neural.neat.genome.HiddenNeuronGene;
 import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGeneType;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 
 import java.util.ArrayList;
@@ -74,8 +74,7 @@ public class AddNeuronMutation extends AbstractMutation {
         }
 
         //Create the new neuron
-        NeuronGene newNeuron = new NeuronGene(
-                NeuronGeneType.HIDDEN,
+        NeuronGene newNeuron = new HiddenNeuronGene(
                 newNeuronId,
                 source.getLayer() + 1
         );
