@@ -44,7 +44,7 @@ public class GenomeComparison {
         calculateConnectionValues();
 
         int n = Math.max(fitParent.getConnections().size(), weakParent.getConnections().size());
-        if (n < 20) {
+        if (n == 0) {
             n = 1;
         }
 
