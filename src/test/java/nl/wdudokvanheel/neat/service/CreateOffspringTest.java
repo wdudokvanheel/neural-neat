@@ -70,8 +70,7 @@ class CreateOffspringTest {
         }
     }
 
-    private static SignatureGenome genomeWithSignature(int index) {
-        InnovationService inv = new InnovationService();
+    private static SignatureGenome genomeWithSignature(InnovationService inv, int index) {
         GenomeBuilder b = new GenomeBuilder(inv);
         InputNeuronGene in = b.addInputNeuron(index);
         return new SignatureGenome(b.getGenome(), in.getInnovationId());
@@ -107,8 +106,9 @@ class CreateOffspringTest {
     @Test
     @DisplayName("With all-zero fitness, offspring come exclusively from first species")
     void zeroFitnessAllotment() throws Exception {
-        SignatureGenome g1 = genomeWithSignature(101);
-        SignatureGenome g2 = genomeWithSignature(202);
+        InnovationService inv = new InnovationService();
+        SignatureGenome g1 = genomeWithSignature(inv, 101);
+        SignatureGenome g2 = genomeWithSignature(inv, 202);
         Species<TestCreature> first = new Species<>(new TestCreature(g1.genome, 0));
         Species<TestCreature> second = new Species<>(new TestCreature(g2.genome, 0));
 
@@ -131,8 +131,10 @@ class CreateOffspringTest {
     @Test
     @DisplayName("Offspring quota follows relative fitness proportions")
     void weightedQuotaDistribution() throws Exception {
-        SignatureGenome strongSig = genomeWithSignature(111);
-        SignatureGenome weakSig = genomeWithSignature(222);
+        InnovationService inv = new InnovationService();
+
+        SignatureGenome strongSig = genomeWithSignature(inv, 111);
+        SignatureGenome weakSig = genomeWithSignature(inv, 222);
         Species<TestCreature> strong = new Species<>(new TestCreature(strongSig.genome, 30)); // fitness 30
         Species<TestCreature> weak = new Species<>(new TestCreature(weakSig.genome, 10)); // fitness 10
 

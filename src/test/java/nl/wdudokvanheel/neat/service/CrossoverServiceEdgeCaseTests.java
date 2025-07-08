@@ -17,8 +17,7 @@ class CrossoverServiceEdgeCaseTests {
     private final CrossoverService xsv = new CrossoverService();
 
     // ── Helpers ──────────────────────────────────────────────────────────────
-    private Genome bothDisabledParents() {
-        InnovationService inv = new InnovationService();
+    private Genome bothDisabledParents(InnovationService inv) {
         GenomeBuilder b = new GenomeBuilder(inv);
         InputNeuronGene in = b.addInputNeuron(0);
         HiddenNeuronGene hid = b.addHiddenNeuron(0);
@@ -29,8 +28,7 @@ class CrossoverServiceEdgeCaseTests {
         return b.getGenome();
     }
 
-    private Genome weakParentWithExtraNeuron() {
-        InnovationService inv = new InnovationService();
+    private Genome weakParentWithExtraNeuron(InnovationService inv) {
         GenomeBuilder b = new GenomeBuilder(inv);
         InputNeuronGene in = b.addInputNeuron(0);
         HiddenNeuronGene h1 = b.addHiddenNeuron(0);
@@ -46,8 +44,9 @@ class CrossoverServiceEdgeCaseTests {
     @Test
     @DisplayName("Disabled in both parents stays disabled in child")
     void disabledGeneRemainsDisabled() {
-        Genome fit  = bothDisabledParents();
-        Genome weak = bothDisabledParents();
+        InnovationService inv = new InnovationService();
+        Genome fit  = bothDisabledParents(inv);
+        Genome weak = bothDisabledParents(inv);
 
         Genome child = xsv.crossover(fit, weak);
 
@@ -57,7 +56,8 @@ class CrossoverServiceEdgeCaseTests {
     @Test
     @DisplayName("Enabled in both parents never disabled in child")
     void enabledGeneRemainsEnabled() {
-        Genome fit = bothDisabledParents();
+        InnovationService inv = new InnovationService();
+        Genome fit = bothDisabledParents(inv);
         fit.getConnections().forEach(c -> c.setEnabled(true));
 
         Genome child = xsv.crossover(fit, fit);
@@ -68,8 +68,9 @@ class CrossoverServiceEdgeCaseTests {
     @Test
     @DisplayName("Disjoint neuron and edges of weak parent are ignored")
     void weakParentDisjointGenesExcluded() {
-        Genome fit  = bothDisabledParents();      // fitter, fewer genes
-        Genome weak = weakParentWithExtraNeuron();
+        InnovationService inv = new InnovationService();
+        Genome fit  = bothDisabledParents(inv);      // fitter, fewer genes
+        Genome weak = weakParentWithExtraNeuron(inv);
 
         Genome child = xsv.crossover(fit, weak);
 
@@ -90,8 +91,9 @@ class CrossoverServiceEdgeCaseTests {
     @Test
     @DisplayName("All child connections reference neurons that exist in child")
     void noDanglingConnections() {
-        Genome fit  = bothDisabledParents();
-        Genome weak = weakParentWithExtraNeuron();
+        InnovationService inv = new InnovationService();
+        Genome fit  = bothDisabledParents(inv);
+        Genome weak = weakParentWithExtraNeuron(inv);
 
         Genome child = xsv.crossover(fit, weak);
 
