@@ -16,13 +16,11 @@ public class Species<Creature extends CreatureInterface<Creature>> {
     public Species(Creature representative) {
         id = id_counter.getAndIncrement();
         this.representative = representative;
-        addCreature(representative);
     }
 
     public Species(int id, Creature representative) {
         this.id = id;
         this.representative = representative;
-        addCreature(representative);
     }
 
     public void addCreature(Creature creature) {
