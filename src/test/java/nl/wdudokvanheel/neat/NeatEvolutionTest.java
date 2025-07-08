@@ -64,7 +64,7 @@ class NeatEvolutionTest {
     void initialPopulationProperties() {
         NeatContext<TestCreature> ctx = NeatEvolution.createContext(new DummyFactory());
         ctx.configuration.populationSize = 6;
-        ctx.configuration.setInitialLinks = false;   // deterministic
+        ctx.configuration.randomizeInitialLinks = false;   // deterministic
 
         Genome tpl = signedGenome(ctx.innovationService, 0.0);
         TestCreature blueprint = new TestCreature(tpl);
@@ -81,7 +81,8 @@ class NeatEvolutionTest {
     void mutationOccursOnClones() {
         NeatContext<TestCreature> ctx = NeatEvolution.createContext(new DummyFactory());
         ctx.configuration.populationSize = 4;          // one blueprint + three clones
-        ctx.configuration.setInitialLinks = false;
+        ctx.configuration.randomizeInitialLinks = true;
+        ctx.configuration.initialLinkWeight = 1;
 
         Genome tpl = signedGenome(ctx.innovationService, 0.0);
         TestCreature blueprint = new TestCreature(tpl);
@@ -103,7 +104,7 @@ class NeatEvolutionTest {
         NeatConfiguration cfg = new NeatConfiguration();
         cfg.populationSize = 8;
         cfg.reproduceWithoutCrossover = 1.0;   // asexual only for determinism
-        cfg.setInitialLinks = false;
+        cfg.randomizeInitialLinks = false;
 
         NeatContext<TestCreature> ctx = new NeatContext(new DummyFactory(), cfg);
         ctx.mutationService = new NoOpMutation(cfg, ctx.innovationService);
@@ -126,7 +127,7 @@ class NeatEvolutionTest {
         cfg.populationSize       = 5;
         cfg.bottomElimination    = 0.6;     // drop 3 of 5
         cfg.reproduceWithoutCrossover = 1.0;
-        cfg.setInitialLinks      = false;
+        cfg.randomizeInitialLinks = false;
 
         NeatContext<TestCreature> ctx = new NeatContext(new DummyFactory(), cfg);
         ctx.mutationService = new NoOpMutation(cfg, ctx.innovationService);

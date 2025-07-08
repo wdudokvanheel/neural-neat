@@ -43,7 +43,6 @@ public class NeatEvolution {
                 Genome clone = ultraChampion.getGenome().clone();
                 context.mutationService.mutateGenome(clone);
                 Creature creature = context.creatureFactory.createNewCreature(clone);
-
                 context.creatures.add(creature);
             }
         }
@@ -55,7 +54,7 @@ public class NeatEvolution {
 
             //Don't mutate the first creature
             if (count > 1) {
-                if (context.configuration.setInitialLinks) {
+                if (context.configuration.randomizeInitialLinks) {
                     initialConnectionState(clone, context.configuration.initialLinkActiveProbability, context.configuration.initialLinkWeight);
                 }
             }
@@ -72,10 +71,7 @@ public class NeatEvolution {
     private static void initialConnectionState(Genome genome, double linkProbability, double linkWeight) {
         for (ConnectionGene connection : genome.getConnections()) {
             connection.setEnabled(random.nextDouble() < linkProbability);
-
-            if (connection.isEnabled()) {
-                connection.setWeight(random.nextDouble() * (2 * linkWeight) - linkWeight);
-            }
+            connection.setWeight(random.nextDouble() * (2 * linkWeight) - linkWeight);
         }
     }
 
@@ -142,7 +138,7 @@ public class NeatEvolution {
             // Randomize all connection weights
             new RandomWeightMutation(1.0).mutate(clone);
 
-            if (context.configuration.setInitialLinks) {
+            if (context.configuration.randomizeInitialLinks) {
                 initialConnectionState(clone, context.configuration.initialLinkActiveProbability, context.configuration.initialLinkWeight);
             }
 
