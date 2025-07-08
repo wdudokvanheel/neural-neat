@@ -44,8 +44,7 @@ public class GenomeComparison {
         calculateConnectionValues();
 
         int n = Math.max(fitParent.getConnections().size(), weakParent.getConnections().size());
-        // avoid divide-by-zero
-        if (n == 0) {
+        if (n < 20) {
             n = 1;
         }
 
@@ -69,6 +68,11 @@ public class GenomeComparison {
 
             //Both genomes have this connection, so count it as a matching connection
             if (fitConnection != null && weakConnection != null) {
+                if (!fitConnection.isEnabled() ^ !weakConnection.isEnabled()) {
+                    disjointConnections++;
+                    continue;
+                }
+
                 matchingConnections++;
                 //Add the weight difference to the total
                 totalWeightDifference += Math.abs(fitConnection.getWeight() - weakConnection.getWeight());
