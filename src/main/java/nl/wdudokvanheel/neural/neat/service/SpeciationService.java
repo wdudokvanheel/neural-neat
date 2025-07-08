@@ -91,8 +91,17 @@ public class SpeciationService<Creature extends CreatureInterface<Creature>> {
     }
 
     public List<Species<Creature>> sortSpeciesByScore(List<Species<Creature>> species) {
-        return species.stream().sorted(Comparator.comparingDouble(Species<Creature>::getFitness).reversed()).collect(Collectors.toList());
+        return species.stream()
+                .sorted((a, b) -> {
+                    int cmp = Double.compare(b.getFitness(), a.getFitness());
+                    if (cmp != 0) {
+                        return cmp;
+                    }
+                    return Integer.compare(a.id, b.id);
+                })
+                .collect(Collectors.toList());
     }
+
 
     public void eliminateLeastFitCreatures(List<Species<Creature>> species) {
         for (Species<Creature> iter : species) {
