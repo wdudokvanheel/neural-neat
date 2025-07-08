@@ -14,8 +14,7 @@ public class Species<Creature extends CreatureInterface<Creature>> {
     public int lastImprovement = 0;
 
     public Species(Creature representative) {
-        id = id_counter.getAndIncrement();
-        this.representative = representative;
+        this(id_counter.getAndIncrement(), representative);
     }
 
     public Species(int id, Creature representative) {
@@ -24,10 +23,6 @@ public class Species<Creature extends CreatureInterface<Creature>> {
     }
 
     public void addCreature(Creature creature) {
-        if (creatures.contains(creature)) {
-            throw new IllegalArgumentException("Creature " + creature + " is already present in Species #" + id);
-        }
-
         creatures.add(creature);
     }
 
