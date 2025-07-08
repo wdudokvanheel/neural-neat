@@ -63,6 +63,7 @@ public class SpeciationService<Creature extends CreatureInterface<Creature>> {
             //Get the champion from the current species as the representative of the new species
             Creature representative = iter.getChampion();
             Species<Creature> replacement = new Species<>(iter.id, representative);
+            replacement.addCreature(representative);
             replacement.lastImprovement = iter.lastImprovement;
             replacement.lastFitness = iter.lastFitness;
             newSpecies.add(replacement);
@@ -107,6 +108,8 @@ public class SpeciationService<Creature extends CreatureInterface<Creature>> {
     }
 
     private void addCreatureToSpecies(List<Species<Creature>> species, Creature creature) {
+        // Shuffle species so the first ones don't automatically fill up
+        Collections.shuffle(species, random);
         //Try to add the creature to any existing species
         for (Species<Creature> existingSpecies : species) {
             //Compare the creature's genome with the representative of the species
@@ -125,5 +128,18 @@ public class SpeciationService<Creature extends CreatureInterface<Creature>> {
         creature.setSpecies(newSpecies);
         logger.trace("Creating new species for creature");
 
+    }
+
+    public void adjustThreshold(List<Species<Creature>> species) {
+        if (species.size() < configuration.targetSpecies) {
+            configuration.speciesThreshold *= 0.9;
+        } else if (species.size() > configuration.targetSpecies) {
+            configuration.speciesThreshold *= 1.1;
+        }
+
+        configuration.speciesThreshold = Math.max(
+                configuration.minSpeciesThreshold,
+                Math.min(configuration.speciesThreshold, configuration.maxSpeciesThreshold)
+        );
     }
 }

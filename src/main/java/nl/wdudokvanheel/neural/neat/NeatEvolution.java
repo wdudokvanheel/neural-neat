@@ -86,6 +86,10 @@ public class NeatEvolution {
         logger.trace("===== Starting generation {} =====", context.generation);
         logger.trace("This generation has {} creatures & {} species", context.creatures.size(), context.species.size());
 
+        if (context.configuration.adjustSpeciesThreshold) {
+            context.speciationService.adjustThreshold(context.species);
+        }
+
         //Sort the creatures by fitness for each species
         context.speciationService.sortCreatures(context.species);
 
@@ -125,20 +129,6 @@ public class NeatEvolution {
 
         //Speciate newly created creatures
         context.species = context.speciationService.speciate(newCreatures, newSpecies);
-
-        //TODO move to Speciationservice
-        if (context.configuration.adjustSpeciesThreshold) {
-            if (context.species.size() < context.configuration.targetSpecies) {
-                context.configuration.speciesThreshold *= 0.9;
-            } else if (context.species.size() > context.configuration.targetSpecies) {
-                context.configuration.speciesThreshold *= 1.1;
-            }
-
-            context.configuration.speciesThreshold = Math.max(
-                    context.configuration.minSpeciesThreshold,
-                    Math.min(context.configuration.speciesThreshold, context.configuration.maxSpeciesThreshold)
-            );
-        }
     }
 
     private static <Creature extends CreatureInterface<Creature>> ArrayList<Creature> createNewCreatures
