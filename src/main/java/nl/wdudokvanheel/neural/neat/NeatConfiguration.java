@@ -4,6 +4,9 @@ public class NeatConfiguration {
     public int populationSize = 1000;
     public int minimumSpeciesSizeForChampionCopy = 5;
     public boolean copyChampionsAllSpecies = true;
+    // An ultra champion is a pre-build genome you supply when creating your initial population, one will be added
+    // without modification and the rest will mutate asexually, the number of clones is specified with this setting
+    public int ultraChampionClones = 50;
     public double speciesThreshold = 3.0;
     public int targetSpecies = 50;
     public boolean adjustSpeciesThreshold = true;

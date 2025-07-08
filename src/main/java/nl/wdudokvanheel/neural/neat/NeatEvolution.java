@@ -32,15 +32,23 @@ public class NeatEvolution {
         generateInitialPopulation(context, blueprint, null);
     }
 
-    public static <Creature extends CreatureInterface<Creature>> void generateInitialPopulation(NeatContext<Creature> context, Creature blueprint, Creature champion) {
+    public static <Creature extends CreatureInterface<Creature>> void generateInitialPopulation(NeatContext<Creature> context, Creature blueprint, Creature ultraChampion) {
         context.blueprint = blueprint;
         logger.trace("Generating initial population of {}", context.configuration.populationSize);
-        int count = 1;
 
-        if (champion != null) {
-            context.creatures.add(champion);
+        if (ultraChampion != null) {
+            context.creatures.add(ultraChampion);
+            logger.trace("Adding {} Ultra Champions", context.configuration.ultraChampionClones);
+            for (int i = 1; i < context.configuration.ultraChampionClones; i++) {
+                Genome clone = ultraChampion.getGenome().clone();
+                context.mutationService.mutateGenome(clone);
+                Creature creature = context.creatureFactory.createNewCreature(clone);
+
+                context.creatures.add(creature);
+            }
         }
 
+        int count = 1;
         //Clone & mutate the blueprint creature to fill the remaining population
         while (context.creatures.size() < context.configuration.populationSize) {
             Genome clone = blueprint.getGenome().clone();
@@ -102,6 +110,9 @@ public class NeatEvolution {
             List<Creature> champions = context.speciationService.getChampions(context);
             logger.trace("Adding {} champions from the previous generation", champions.size());
             newCreatures.addAll(champions);
+            if (!newCreatures.contains(context.getFittestCreature())) {
+                newCreatures.add(context.getFittestCreature());
+            }
         }
 
         //Crossover creatures
@@ -110,13 +121,10 @@ public class NeatEvolution {
         newCreatures.addAll(offspring);
 
         //Clear last generation creatures and add new ones
-        context.creatures.clear();
-        context.creatures.addAll(newCreatures);
-
-        context.species.clear();
+        context.creatures = newCreatures;
 
         //Speciate newly created creatures
-        context.species.addAll(context.speciationService.speciate(newCreatures, newSpecies));
+        context.species = context.speciationService.speciate(newCreatures, newSpecies);
 
         //TODO move to Speciationservice
         if (context.configuration.adjustSpeciesThreshold) {

@@ -6,7 +6,7 @@
 
     <groupId>nl.wdudokvanheel</groupId>
     <artifactId>neat</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
 
     <name>Neural NEAT</name>
     <description>
