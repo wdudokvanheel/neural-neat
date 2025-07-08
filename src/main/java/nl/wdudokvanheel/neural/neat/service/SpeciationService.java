@@ -60,9 +60,9 @@ public class SpeciationService<Creature extends CreatureInterface<Creature>> {
         ArrayList<Species<Creature>> newSpecies = new ArrayList<>();
 
         for (Species<Creature> iter : context.species) {
-            //Get a random creature from the current species as the representative of the new species
-            Creature representative = iter.getCreatures().get(random.nextInt(iter.size()));
-            Species<Creature> replacement = new Species<Creature>(iter.id, representative);
+            //Get the champion from the current species as the representative of the new species
+            Creature representative = iter.getChampion();
+            Species<Creature> replacement = new Species<>(iter.id, representative);
             replacement.lastImprovement = iter.lastImprovement;
             replacement.lastFitness = iter.lastFitness;
             newSpecies.add(replacement);
