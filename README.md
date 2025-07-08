@@ -48,12 +48,12 @@ Check out this project for a minimal example on how to utilize the library. Medi
 36 generations with a >99% solve rate.
 
 ```
-Statistics for 99333/100000 (99.33%) successful runs:
-  Average generations:  43.16
-  Min generations:      7
-  Max generations:      298
-  Median generations:   36.00
-  StdDev generations:   26.23
+Statistics for 1000/1000 (100.00%) successful runs:
+  Average generations: 19.83
+  Min generations: 4
+  Max generations: 47
+  Median generations: 19.00
+  StdDev generations: 5.57
 ```
 
 ## Getting Started
@@ -67,7 +67,7 @@ JAR yourself if you prefer.
     <dependency>
             <groupId>nl.wdudokvanheel</groupId>
             <artifactId>neat</artifactId>
-            <version>1.4.0</version>
+            <version>1.4.3</version>
     </dependency>
 ```
 

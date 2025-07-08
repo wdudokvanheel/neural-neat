@@ -20,6 +20,8 @@ public class Species<Creature extends CreatureInterface<Creature>> {
     public Species(int id, Creature representative) {
         this.id = id;
         this.representative = representative;
+        creatures.add(representative);
+        representative.setSpecies(this);
     }
 
     public void addCreature(Creature creature) {

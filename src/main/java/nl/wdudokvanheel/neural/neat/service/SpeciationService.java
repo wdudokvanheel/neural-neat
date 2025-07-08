@@ -63,7 +63,6 @@ public class SpeciationService<Creature extends CreatureInterface<Creature>> {
             //Get the champion from the current species as the representative of the new species
             Creature representative = iter.getChampion();
             Species<Creature> replacement = new Species<>(iter.id, representative);
-            replacement.addCreature(representative);
             replacement.lastImprovement = iter.lastImprovement;
             replacement.lastFitness = iter.lastFitness;
             newSpecies.add(replacement);
@@ -125,9 +124,7 @@ public class SpeciationService<Creature extends CreatureInterface<Creature>> {
         //Creature did not match with any existing species, create a new one
         Species<Creature> newSpecies = new Species<>(creature);
         species.add(newSpecies);
-        creature.setSpecies(newSpecies);
         logger.trace("Creating new species for creature");
-
     }
 
     public void adjustThreshold(List<Species<Creature>> species) {
