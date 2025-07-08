@@ -29,6 +29,19 @@ public abstract class NeuronGene {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof NeuronGene other)) {
+            return false;
+        }
+
+        return other.innovationId == innovationId && other.layer == layer;
+    }
+
+
+    @Override
     public abstract NeuronGene clone();
 
     @Override

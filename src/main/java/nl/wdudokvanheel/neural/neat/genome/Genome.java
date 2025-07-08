@@ -1,5 +1,7 @@
 package nl.wdudokvanheel.neural.neat.genome;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,6 +33,7 @@ public class Genome {
         return neurons;
     }
 
+    @JsonIgnore
     public List<InputNeuronGene> getInputNeurons() {
         return neurons
                 .stream()
@@ -39,6 +42,7 @@ public class Genome {
                 .toList();
     }
 
+    @JsonIgnore
     public List<HiddenNeuronGene> getHiddenNeurons() {
         return neurons
                 .stream()
@@ -47,6 +51,7 @@ public class Genome {
                 .toList();
     }
 
+    @JsonIgnore
     public List<OutputNeuronGene> getOutputNeurons() {
         return neurons
                 .stream()
@@ -59,6 +64,7 @@ public class Genome {
         return connections;
     }
 
+    @JsonIgnore
     public List<ConnectionGene> getActiveConnections() {
         return connections.stream().filter(c -> c.isEnabled()).collect(Collectors.toList());
     }
@@ -124,5 +130,62 @@ public class Genome {
             clone.addConnection(connection.clone());
         }
         return clone;
+    }
+
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (!(o instanceof Genome)) {
+//            return false;
+//        }
+//        Genome other = (Genome) o;
+//
+//        Set<Integer> myNeurons = neurons.stream()
+//                .map(NeuronGene::getInnovationId)
+//                .collect(Collectors.toSet());
+//
+//        Set<Integer> theirNeurons = other.neurons.stream()
+//                .map(NeuronGene::getInnovationId)
+//                .collect(Collectors.toSet());
+//
+//        if (!myNeurons.equals(theirNeurons)) {
+//            return false;
+//        }
+//
+//        Set<Integer> myConns = connections.stream()
+//                .map(ConnectionGene::getInnovationId)
+//                .collect(Collectors.toSet());
+//
+//        Set<Integer> theirConns = other.connections.stream()
+//                .map(ConnectionGene::getInnovationId)
+//                .collect(Collectors.toSet());
+//        if (!myConns.equals(theirConns)) {
+//            return false;
+//        }
+//
+//        for (ConnectionGene c : connections) {
+//            ConnectionGene oc = other.getConnectionById(c.getInnovationId());
+//            if (!c.equals(oc)) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Genome other)) return false;
+        // rely on List.equals(), which in turn uses element.equals(...)
+        return neurons.equals(other.neurons)
+                && connections.equals(other.connections);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + neurons.hashCode();
+        result = 31 * result + connections.hashCode();
+        return result;
     }
 }

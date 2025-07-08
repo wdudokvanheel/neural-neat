@@ -2,9 +2,6 @@ package nl.wdudokvanheel.neural.neat.service;
 
 import nl.wdudokvanheel.neural.neat.genome.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class GenomeBuilder {
     private final InnovationService innovationService;
     private final Genome genome;
@@ -30,27 +27,9 @@ public class GenomeBuilder {
         return outputNeuronGene;
     }
 
-    public List<InputNeuronGene> addInputNeurons(int count) {
-        List<InputNeuronGene> inputs = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            inputs.add(addInputNeuron(i));
-        }
-
-        return inputs;
-    }
-
-    public List<OutputNeuronGene> addOutputNeurons(int count) {
-        List<OutputNeuronGene> outputs = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            outputs.add(addOutputNeuron(i));
-        }
-
-        return outputs;
-    }
-
     public HiddenNeuronGene addHiddenNeuron(int index) {
-        int innovationId = innovationService.getNeuronInnovationId(index);
-        HiddenNeuronGene hiddenNeuronGene = new HiddenNeuronGene(innovationId, 1);
+        int innovationId = innovationService.getStaticHiddenNeuronInnovationId(index);
+        StaticHiddenNeuronGene hiddenNeuronGene = new StaticHiddenNeuronGene(index, innovationId, 1);
         genome.addNeuron(hiddenNeuronGene);
 
         // If a hidden neuron is added, make sure the outputs are moved to layer 2
@@ -60,23 +39,44 @@ public class GenomeBuilder {
         return hiddenNeuronGene;
     }
 
-    public List<HiddenNeuronGene> addHiddenNeurons(int count) {
-        List<HiddenNeuronGene> hidden = new ArrayList<>();
-
+    public InputNeuronGene[] addInputNeurons(int count) {
+        InputNeuronGene[] inputs = new InputNeuronGene[count];
         for (int i = 0; i < count; i++) {
-            hidden.add(addHiddenNeuron(i));
+            inputs[i] = addInputNeuron(i);
+        }
+
+        return inputs;
+    }
+
+    public HiddenNeuronGene[] addHiddenNeurons(int count) {
+        HiddenNeuronGene[] hidden = new HiddenNeuronGene[count];
+        for (int i = 0; i < count; i++) {
+            hidden[i] = addHiddenNeuron(i);
         }
 
         return hidden;
     }
 
-    public ConnectionGene addConnection(NeuronGene source, NeuronGene target) {
+    public OutputNeuronGene[] addOutputNeurons(int count) {
+        OutputNeuronGene[] outputs = new OutputNeuronGene[count];
+        for (int i = 0; i < count; i++) {
+            outputs[i] = addOutputNeuron(i);
+        }
+
+        return outputs;
+    }
+
+    public ConnectionGene addConnection(NeuronGene source, NeuronGene target, double weight) {
         int sourceInnovationId = source.getInnovationId();
         int targetInnovationId = target.getInnovationId();
         int innovationId = innovationService.getConnectionInnovationId(sourceInnovationId, targetInnovationId);
-        ConnectionGene connectionGene = new ConnectionGene(innovationId, sourceInnovationId, targetInnovationId, 0);
+        ConnectionGene connectionGene = new ConnectionGene(innovationId, sourceInnovationId, targetInnovationId, weight);
         genome.addConnection(connectionGene);
         return connectionGene;
+    }
+
+    public ConnectionGene addConnection(NeuronGene source, NeuronGene target) {
+       return addConnection(source, target, 0);
     }
 
     public Genome getGenome() {

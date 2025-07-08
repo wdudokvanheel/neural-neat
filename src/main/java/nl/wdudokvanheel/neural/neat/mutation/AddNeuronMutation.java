@@ -31,7 +31,7 @@ public class AddNeuronMutation extends AbstractMutation {
             //Check if the connection has been created before, to avoid making an unused id
             if (innovationService.doesNeuronIdExist(connection.getInnovationId())) {
                 //Innovation already exists, get its id now and make sure it doesn't exist yet in the genome
-                int id = innovationService.getNeuronInnovationId(connection.getInnovationId());
+                int id = innovationService.getHiddenNeuronInnovationId(connection.getInnovationId());
 
                 //This connection was already replaced by a neuron, so discard this connection as a possible connection to replace
                 if (genome.getNeuronById(id) != null) {
@@ -51,7 +51,7 @@ public class AddNeuronMutation extends AbstractMutation {
             throw new IllegalArgumentException("Connection is not a part of the genome");
         }
 
-        int newNeuronId = innovationService.getNeuronInnovationId(connection.getInnovationId());
+        int newNeuronId = innovationService.getHiddenNeuronInnovationId(connection.getInnovationId());
 
         /*
            If this connection has already been split once, the InnovationService
@@ -75,6 +75,7 @@ public class AddNeuronMutation extends AbstractMutation {
 
         //Create the new neuron
         NeuronGene newNeuron = new HiddenNeuronGene(
+                connection.getInnovationId(),
                 newNeuronId,
                 source.getLayer() + 1
         );

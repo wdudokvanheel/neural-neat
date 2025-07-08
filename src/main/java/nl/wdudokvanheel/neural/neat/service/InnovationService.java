@@ -2,7 +2,7 @@ package nl.wdudokvanheel.neural.neat.service;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-import nl.wdudokvanheel.neural.neat.genome.NeuronGene;
+import nl.wdudokvanheel.neural.neat.genome.*;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -11,12 +11,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Service to generate and retrieve innovation ids for genome connections and nodes
  */
 public class InnovationService {
-    private final AtomicInteger innovation = new AtomicInteger();
+    private final AtomicInteger innovationIdCounter = new AtomicInteger();
 
     // maps are now concurrent so we don’t need explicit synchronisation
     private final ConcurrentHashMap<Integer, Integer> inputNeuronIds = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Integer, Integer> outputNeuronIds = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<Integer, Integer> hiddenNeuronIds = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, Integer> staticHiddenNeuronIds = new ConcurrentHashMap<>();
 
     private final Table<Integer, Integer, Integer> connectionIds = HashBasedTable.create();
 
@@ -25,10 +26,19 @@ public class InnovationService {
      *
      * @param connectionId The innovation id of the connection the neuron replaces
      */
-    public int getNeuronInnovationId(int connectionId) {
-        return hiddenNeuronIds.computeIfAbsent(connectionId,
-                k -> nextInnovation());
+    public int getHiddenNeuronInnovationId(int connectionId) {
+        return hiddenNeuronIds.computeIfAbsent(connectionId, k -> nextInnovation());
     }
+
+    /**
+     * Get the innovation id for a static hidden neuron (one that does not replace a connection, but is always present)
+     *
+     * @param index The innovation id of the index of the static hidden neuron
+     */
+    public int getStaticHiddenNeuronInnovationId(int index) {
+        return staticHiddenNeuronIds.computeIfAbsent(index, k -> nextInnovation());
+    }
+
 
     public boolean doesNeuronIdExist(int connectionId) {
         return hiddenNeuronIds.containsKey(connectionId);
@@ -69,10 +79,58 @@ public class InnovationService {
         return outputNeuronIds.computeIfAbsent(index, k -> nextInnovation());
     }
 
-    // ******* Helper & wrapper methods *******
+    public void importFromGenome(Genome genome) {
+        for (ConnectionGene conn : genome.getConnections()) {
+            int id = conn.getInnovationId();
+            bumpCounterTo(id);
+            synchronized (connectionIds) {
+                connectionIds.put(conn.getSource(), conn.getTarget(), id);
+            }
+        }
+
+        InputNeuronGene[] inputs = genome.getInputNeurons().toArray(InputNeuronGene[]::new);
+        HiddenNeuronGene[] staticHidden = genome.getHiddenNeurons().stream().filter(n -> n instanceof StaticHiddenNeuronGene).map(n -> (StaticHiddenNeuronGene) n).toArray(StaticHiddenNeuronGene[]::new);
+        HiddenNeuronGene[] connectionHidden = genome.getHiddenNeurons().stream().filter(n -> !(n instanceof StaticHiddenNeuronGene)).toArray(HiddenNeuronGene[]::new);
+        OutputNeuronGene[] outputs = genome.getOutputNeurons().toArray(OutputNeuronGene[]::new);
+
+        for (int i = 0; i < inputs.length; i++) {
+            inputNeuronIds.put(i, inputs[i].getInnovationId());
+            bumpCounterTo(inputs[i].getInnovationId());
+        }
+
+        for (int i = 0; i < staticHidden.length; i++) {
+            staticHiddenNeuronIds.put(i, staticHidden[i].getInnovationId());
+            bumpCounterTo(staticHidden[i].getInnovationId());
+        }
+
+        for (int i = 0; i < connectionHidden.length; i++) {
+            hiddenNeuronIds.put(connectionHidden[i].getConnectionId(), connectionHidden[i].getInnovationId());
+            bumpCounterTo(connectionHidden[i].getInnovationId());
+        }
+
+        for (int i = 0; i < outputs.length; i++) {
+            outputNeuronIds.put(i, outputs[i].getInnovationId());
+            bumpCounterTo(outputs[i].getInnovationId());
+        }
+    }
+
+    /**
+     * Atomically advance the counter so it's at least `id`.
+     */
+    private void bumpCounterTo(int id) {
+        while (true) {
+            int current = innovationIdCounter.get();
+            if (current >= id) {
+                break;
+            }
+            if (innovationIdCounter.compareAndSet(current, id)) {
+                break;
+            }
+        }
+    }
 
     private int nextInnovation() {
-        return innovation.incrementAndGet();           // single global counter
+        return innovationIdCounter.incrementAndGet();
     }
 
     public int getConnectionInnovationId(NeuronGene source, NeuronGene target) {

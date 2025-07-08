@@ -30,8 +30,8 @@ class InnovationServiceTest {
         InnovationService inv = new InnovationService();
 
         int connId = 42;                           // arbitrary
-        int first = inv.getNeuronInnovationId(connId);
-        int second = inv.getNeuronInnovationId(connId);
+        int first = inv.getHiddenNeuronInnovationId(connId);
+        int second = inv.getHiddenNeuronInnovationId(connId);
 
         assertEquals(first, second,
                 "Splitting same connection twice yielded different neuron IDs");
@@ -57,7 +57,7 @@ class InnovationServiceTest {
 
         int a = inv.getConnectionInnovationId(1, 2);   // first connection
         int b = inv.getConnectionInnovationId(2, 3);   // second connection
-        int n = inv.getNeuronInnovationId(a);          // first hidden neuron
+        int n = inv.getHiddenNeuronInnovationId(a);          // first hidden neuron
 
         assertTrue(a < b, "IDs not increasing for successive connections");
         assertTrue(b < n, "Neuron ID should follow connection IDs");
@@ -70,10 +70,10 @@ class InnovationServiceTest {
 
         // Genome A splits connection X
         int connX = inv.getConnectionInnovationId(5, 6);
-        int neuronA = inv.getNeuronInnovationId(connX);
+        int neuronA = inv.getHiddenNeuronInnovationId(connX);
 
         // Genome B (later) splits *the same* connection X
-        int neuronB = inv.getNeuronInnovationId(connX);
+        int neuronB = inv.getHiddenNeuronInnovationId(connX);
 
         assertEquals(neuronA, neuronB,
                 "Same structural event in different genomes produced different ids");
