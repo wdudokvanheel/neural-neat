@@ -29,9 +29,17 @@ public class NeatEvolution {
     }
 
     public static <Creature extends CreatureInterface<Creature>> void generateInitialPopulation(NeatContext<Creature> context, Creature blueprint) {
+        generateInitialPopulation(context, blueprint, null);
+    }
+
+    public static <Creature extends CreatureInterface<Creature>> void generateInitialPopulation(NeatContext<Creature> context, Creature blueprint, Creature champion) {
         context.blueprint = blueprint;
         logger.trace("Generating initial population of {}", context.configuration.populationSize);
         int count = 1;
+
+        if (champion != null) {
+            context.creatures.add(champion);
+        }
 
         //Clone & mutate the blueprint creature to fill the remaining population
         while (context.creatures.size() < context.configuration.populationSize) {
@@ -39,11 +47,9 @@ public class NeatEvolution {
 
             //Don't mutate the first creature
             if (count > 1) {
-                new RandomWeightMutation(1.0).mutate(clone);
-            }
-
-            if (context.configuration.setInitialLinks) {
-                initialConnectionState(clone, context.configuration.initialLinkActiveProbability);
+                if (context.configuration.setInitialLinks) {
+                    initialConnectionState(clone, context.configuration.initialLinkActiveProbability, context.configuration.initialLinkWeight);
+                }
             }
 
             Creature creature = context.creatureFactory.createNewCreature(clone);
@@ -55,16 +61,18 @@ public class NeatEvolution {
         context.species = context.speciationService.speciate(context.creatures, new ArrayList<>());
     }
 
-    private static void initialConnectionState(Genome genome, double linkProbability) {
+    private static void initialConnectionState(Genome genome, double linkProbability, double linkWeight) {
         for (ConnectionGene connection : genome.getConnections()) {
             connection.setEnabled(random.nextDouble() < linkProbability);
-            if(connection.isEnabled()){
-                connection.setWeight(random.nextDouble() * 8 - 4);
+
+            if (connection.isEnabled()) {
+                connection.setWeight(random.nextDouble() * (2 * linkWeight) - linkWeight);
             }
         }
     }
 
-    public static <Creature extends CreatureInterface<Creature>> void nextGeneration(NeatContext<Creature> context) {
+    public static <Creature extends CreatureInterface<Creature>> void nextGeneration
+            (NeatContext<Creature> context) {
         context.generation++;
         logger.trace("");
         logger.trace("===== Starting generation {} =====", context.generation);
@@ -125,7 +133,8 @@ public class NeatEvolution {
         }
     }
 
-    private static <Creature extends CreatureInterface<Creature>> ArrayList<Creature> createNewCreatures(NeatContext<Creature> context, int creatures) {
+    private static <Creature extends CreatureInterface<Creature>> ArrayList<Creature> createNewCreatures
+            (NeatContext<Creature> context, int creatures) {
         ArrayList<Creature> result = new ArrayList<>();
         int count = 0;
         while (count < creatures) {
@@ -136,7 +145,7 @@ public class NeatEvolution {
             new RandomWeightMutation(1.0).mutate(clone);
 
             if (context.configuration.setInitialLinks) {
-                initialConnectionState(clone, context.configuration.initialLinkActiveProbability);
+                initialConnectionState(clone, context.configuration.initialLinkActiveProbability, context.configuration.initialLinkWeight);
             }
 
             Creature creature = context.creatureFactory.createNewCreature(clone);

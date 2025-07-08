@@ -32,7 +32,7 @@ public class SerializationService {
         try {
             return objectMapper.readValue(json, Genome.class);
         } catch (JsonProcessingException e) {
-            logger.info("Failed to deserialize: {}", e);
+            logger.warn("Failed to deserialize");
             return null;
         }
     }

@@ -15,6 +15,7 @@ public class NeatConfiguration {
     public double interspeciesCrossover = 0.001;
     public boolean setInitialLinks = false;
     public double initialLinkActiveProbability = 0.25;
+    public double initialLinkWeight = 1.0;
 
     //Mutation chances
     public boolean multipleMutationsPerGenome = true;
