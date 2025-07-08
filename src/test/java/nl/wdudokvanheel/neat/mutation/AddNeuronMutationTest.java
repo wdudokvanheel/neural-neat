@@ -2,6 +2,7 @@ package nl.wdudokvanheel.neat.mutation;
 
 import nl.wdudokvanheel.neural.neat.genome.*;
 import nl.wdudokvanheel.neural.neat.mutation.AddNeuronMutation;
+import nl.wdudokvanheel.neural.neat.service.GenomeBuilder;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,16 +14,14 @@ class AddNeuronMutationTest {
     @DisplayName("Output layer should shift when hidden node is added")
     void insertingNeuronShiftsOutputLayer() {
         InnovationService innovation = new InnovationService();
-        Genome g = new Genome();
+        GenomeBuilder b = new GenomeBuilder(innovation);
 
-        int inId = innovation.getInputNodeInnovationId(0);
-        int outId = innovation.getOutputNodeInnovationId(0);
+        InputNeuronGene in = b.addInputNeuron(0);
+        OutputNeuronGene out = b.addOutputNeuron(0);
 
-        g.addNeuron(new InputNeuronGene(inId, 0));
-        g.addNeuron(new OutputNeuronGene(outId, 1));
-
-        int connId = innovation.getConnectionInnovationId(inId, outId);
-        g.addConnection(new ConnectionGene(connId, inId, outId, 1.0));
+        ConnectionGene conn = b.addConnection(in, out);
+        conn.setWeight(1.0);
+        Genome g = b.getGenome();
 
         new AddNeuronMutation(innovation).mutate(g);
 
@@ -32,7 +31,7 @@ class AddNeuronMutationTest {
                 .orElseThrow();
         assertEquals(1, hidden.getLayer(), "hidden should occupy the freed-up layer");
 
-        NeuronGene output = g.getNeuronById(outId);
+        NeuronGene output = g.getNeuronById(out.getInnovationId());
         assertEquals(2, output.getLayer(), "output must be shifted one layer deeper");
     }
 }

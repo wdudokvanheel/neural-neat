@@ -1,6 +1,10 @@
 package nl.wdudokvanheel.neat.network;
 
-import nl.wdudokvanheel.neural.neat.genome.*;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
+import nl.wdudokvanheel.neural.neat.genome.HiddenNeuronGene;
+import nl.wdudokvanheel.neural.neat.genome.InputNeuronGene;
+import nl.wdudokvanheel.neural.neat.genome.OutputNeuronGene;
+import nl.wdudokvanheel.neural.neat.service.GenomeBuilder;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import nl.wdudokvanheel.neural.network.Network;
 import org.junit.jupiter.api.DisplayName;
@@ -29,53 +33,34 @@ class XorNetworkTest {
 
     private Genome buildXorGenome() {
         InnovationService inv = new InnovationService();
+        GenomeBuilder b = new GenomeBuilder(inv);
 
         // ─── Neurons ────────────────────────────────────────────────
-        int aId    = inv.getInputNodeInnovationId(0);   // #1
-        int bId    = inv.getInputNodeInnovationId(1);   // #2
-        int biasId = inv.getInputNodeInnovationId(2);   // #3  (constant 1)
+        InputNeuronGene a     = b.addInputNeuron(0);   // #1
+        InputNeuronGene bIn   = b.addInputNeuron(1);   // #2
+        InputNeuronGene bias  = b.addInputNeuron(2);   // #3  (constant 1)
 
-        int h0Id = inv.getNeuronInnovationId(1);        // #4
-        int h1Id = inv.getNeuronInnovationId(2);        // #5
-        int outId = inv.getOutputNodeInnovationId(0);   // #6
-
-        Genome g = new Genome();
-
-        // inputs & bias on layer 0
-        g.addNeurons(
-                new InputNeuronGene(aId, 0),
-                new InputNeuronGene(bId, 0),
-                new InputNeuronGene(biasId, 0)
-        );
-        // hidden layer 1
-        g.addNeurons(
-                new HiddenNeuronGene(h0Id, 1),
-                new HiddenNeuronGene(h1Id, 1)
-        );
-        // output layer 2
-        g.addNeuron(new OutputNeuronGene(outId, 2));
+        HiddenNeuronGene h0 = b.addHiddenNeuron(1);    // #4
+        HiddenNeuronGene h1 = b.addHiddenNeuron(2);    // #5
+        OutputNeuronGene out = b.addOutputNeuron(0);   // #6
 
         // ─── Connections with hand-tuned weights ───────────────────
         // In A / B → Hid0  (20, 20, -10)
-        g.addConnections(
-                new ConnectionGene(inv.getConnectionInnovationId(aId, h0Id), aId, h0Id,  20),
-                new ConnectionGene(inv.getConnectionInnovationId(bId, h0Id), bId, h0Id,  20),
-                new ConnectionGene(inv.getConnectionInnovationId(biasId, h0Id), biasId, h0Id, -10)
-        );
-        // In A / B → Hid1  (-20, -20, 30)
-        g.addConnections(
-                new ConnectionGene(inv.getConnectionInnovationId(aId, h1Id), aId, h1Id, -20),
-                new ConnectionGene(inv.getConnectionInnovationId(bId, h1Id), bId, h1Id, -20),
-                new ConnectionGene(inv.getConnectionInnovationId(biasId, h1Id), biasId, h1Id,  30)
-        );
-        // Hid0 / Hid1 → Out  (20, 20, -30) — bias reused
-        g.addConnections(
-                new ConnectionGene(inv.getConnectionInnovationId(h0Id, outId), h0Id, outId, 20),
-                new ConnectionGene(inv.getConnectionInnovationId(h1Id, outId), h1Id, outId, 20),
-                new ConnectionGene(inv.getConnectionInnovationId(biasId, outId), biasId, outId, -30)
-        );
+        b.addConnection(a, h0).setWeight(20);
+        b.addConnection(bIn, h0).setWeight(20);
+        b.addConnection(bias, h0).setWeight(-10);
 
-        return g;
+        // In A / B → Hid1  (-20, -20, 30)
+        b.addConnection(a, h1).setWeight(-20);
+        b.addConnection(bIn, h1).setWeight(-20);
+        b.addConnection(bias, h1).setWeight(30);
+
+        // Hid0 / Hid1 → Out  (20, 20, -30) — bias reused
+        b.addConnection(h0, out).setWeight(20);
+        b.addConnection(h1, out).setWeight(20);
+        b.addConnection(bias, out).setWeight(-30);
+
+        return b.getGenome();
     }
 
     @Test

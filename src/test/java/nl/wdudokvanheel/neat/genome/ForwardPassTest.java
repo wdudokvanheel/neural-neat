@@ -4,6 +4,7 @@ import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
 import nl.wdudokvanheel.neural.neat.genome.Genome;
 import nl.wdudokvanheel.neural.neat.genome.InputNeuronGene;
 import nl.wdudokvanheel.neural.neat.genome.OutputNeuronGene;
+import nl.wdudokvanheel.neural.neat.service.GenomeBuilder;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import nl.wdudokvanheel.neural.network.Network;
 import org.junit.jupiter.api.DisplayName;
@@ -30,18 +31,15 @@ class ForwardPassTest {
      * Build a minimal one-edge genome.
      */
     private static Genome singleEdgeGenome(double weight, InnovationService inv) {
+        GenomeBuilder b = new GenomeBuilder(inv);
 
-        int inId = inv.getInputNodeInnovationId(0);
-        int outId = inv.getOutputNodeInnovationId(0);
+        InputNeuronGene in = b.addInputNeuron(0);
+        OutputNeuronGene out = b.addOutputNeuron(0);
 
-        Genome g = new Genome();
-        g.addNeuron(new InputNeuronGene(inId, 0));
-        g.addNeuron(new OutputNeuronGene(outId, 1));
+        ConnectionGene c = b.addConnection(in, out);
+        c.setWeight(weight);
 
-        int connId = inv.getConnectionInnovationId(inId, outId);
-        g.addConnection(new ConnectionGene(connId, inId, outId, weight));
-
-        return g;
+        return b.getGenome();
     }
 
     /**

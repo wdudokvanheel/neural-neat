@@ -2,6 +2,7 @@ package nl.wdudokvanheel.neat.service;
 
 import nl.wdudokvanheel.neural.neat.genome.*;
 import nl.wdudokvanheel.neural.neat.service.CrossoverService;
+import nl.wdudokvanheel.neural.neat.service.GenomeBuilder;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,36 +30,32 @@ class CrossoverServiceTest {
     private final CrossoverService xsv = new CrossoverService();
 
     private Genome buildFitParent() {
-        Genome g = new Genome();
+        InnovationService inv = new InnovationService();
+        GenomeBuilder b = new GenomeBuilder(inv);
 
-        // Neuron innovation ids: 1=input , 2=hidden , 3=output
-        g.addNeurons(
-                new InputNeuronGene(1, 0),
-                new HiddenNeuronGene(2, 1),
-                new OutputNeuronGene(3, 2)
-        );
-        // Connections
-        g.addConnections(
-                new ConnectionGene(1, 1, 2, 0.7, true),
-                new ConnectionGene(2, 2, 3, -1.1, true),
-                new ConnectionGene(3, 1, 3, 0.3, true)   // excess for W
-        );
-        return g;
+        InputNeuronGene in = b.addInputNeuron(0);
+        HiddenNeuronGene hid = b.addHiddenNeuron(0);
+        OutputNeuronGene out = b.addOutputNeuron(0);
+
+        b.addConnection(in, hid).setWeight(0.7);
+        b.addConnection(hid, out).setWeight(-1.1);
+        b.addConnection(in, out).setWeight(0.3);   // excess for weak parent
+
+        return b.getGenome();
     }
 
     private Genome buildWeakParent() {
-        Genome g = new Genome();
+        InnovationService inv = new InnovationService();
+        GenomeBuilder b = new GenomeBuilder(inv);
 
-        g.addNeurons(
-                new InputNeuronGene(1, 0),
-                new HiddenNeuronGene(2, 1),
-                new OutputNeuronGene(3, 2)
-        );
-        g.addConnections(
-                new ConnectionGene(1, 1, 2, 0.9, true),   // weight differs
-                new ConnectionGene(2, 2, 3, -1.1, true)
-        );
-        return g;
+        InputNeuronGene in = b.addInputNeuron(0);
+        HiddenNeuronGene hid = b.addHiddenNeuron(0);
+        OutputNeuronGene out = b.addOutputNeuron(0);
+
+        b.addConnection(in, hid).setWeight(0.9);   // weight differs
+        b.addConnection(hid, out).setWeight(-1.1);
+
+        return b.getGenome();
     }
 
     @Test
@@ -88,8 +85,11 @@ class CrossoverServiceTest {
                 .map(ConnectionGene::getInnovationId)
                 .collect(Collectors.toSet());
 
-        // expected: {1,2,3}.  3 is excess in fit.
-        assertEquals(Set.of(1, 2, 3), childConnIds,
+        Set<Integer> expected = fit.getConnections().stream()
+                .map(ConnectionGene::getInnovationId)
+                .collect(Collectors.toSet());
+
+        assertEquals(expected, childConnIds,
                 "Child should contain matching and excess from fitter parent only");
     }
 
@@ -97,9 +97,14 @@ class CrossoverServiceTest {
     @DisplayName("Matching gene weight comes from either parent (50-50)")
     void matchingGeneWeightSource() {
 
-        Genome child = xsv.crossover(buildFitParent(), buildWeakParent());
+        Genome fit = buildFitParent();
+        Genome weak = buildWeakParent();
+        Genome child = xsv.crossover(fit, weak);
 
-        ConnectionGene conn1 = child.getConnectionById(1); // matching
+        ConnectionGene template = fit.getConnection(
+                fit.getInputNeurons().getFirst().getInnovationId(),
+                fit.getHiddenNeurons().getFirst().getInnovationId());
+        ConnectionGene conn1 = child.getConnectionById(template.getInnovationId());
         double wFit = 0.7;
         double wWeak = 0.9;
 
@@ -120,8 +125,10 @@ class CrossoverServiceTest {
         Genome fit = buildFitParent();
         Genome weak = buildWeakParent();
 
-        // Disable connection 2 only in weak parent
-        weak.getConnectionById(2).setEnabled(false);
+        ConnectionGene hidOut = weak.getConnection(
+                weak.getHiddenNeurons().getFirst().getInnovationId(),
+                weak.getOutputNeurons().getFirst().getInnovationId());
+        hidOut.setEnabled(false);
 
         int enabled = 0;
         int disabled = 0;
@@ -129,7 +136,7 @@ class CrossoverServiceTest {
         // stochastic rule (25 % chance to re-enable); sample 200 times
         for (int i = 0; i < 200; i++) {
             Genome child = xsv.crossover(fit, weak);
-            if (child.getConnectionById(2).isEnabled()) {
+            if (child.getConnectionById(hidOut.getInnovationId()).isEnabled()) {
                 enabled++;
             } else {
                 disabled++;

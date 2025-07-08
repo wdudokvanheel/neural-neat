@@ -5,6 +5,7 @@ import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
 import nl.wdudokvanheel.neural.neat.genome.Genome;
 import nl.wdudokvanheel.neural.neat.genome.InputNeuronGene;
 import nl.wdudokvanheel.neural.neat.genome.OutputNeuronGene;
+import nl.wdudokvanheel.neural.neat.service.GenomeBuilder;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import nl.wdudokvanheel.neural.neat.service.MutationService;
 import nl.wdudokvanheel.neural.util.AbstractCreatureInterface;
@@ -34,13 +35,12 @@ class NeatEvolutionTest {
     }
 
     private static Genome signedGenome(InnovationService inv, double weight) {
-        int in  = inv.getInputNodeInnovationId(0);
-        int out = inv.getOutputNodeInnovationId(0);
-        Genome g = new Genome();
-        g.addNeuron(new InputNeuronGene(in, 0));
-        g.addNeuron(new OutputNeuronGene(out, 1));
-        g.addConnection(new ConnectionGene(inv.getConnectionInnovationId(in, out), in, out, weight));
-        return g;
+        GenomeBuilder b = new GenomeBuilder(inv);
+        InputNeuronGene in = b.addInputNeuron(0);
+        OutputNeuronGene out = b.addOutputNeuron(0);
+        ConnectionGene c = b.addConnection(in, out);
+        c.setWeight(weight);
+        return b.getGenome();
     }
 
     @Test

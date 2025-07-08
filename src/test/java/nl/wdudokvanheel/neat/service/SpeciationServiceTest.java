@@ -6,6 +6,8 @@ import nl.wdudokvanheel.neural.neat.genome.ConnectionGene;
 import nl.wdudokvanheel.neural.neat.genome.Genome;
 import nl.wdudokvanheel.neural.neat.genome.InputNeuronGene;
 import nl.wdudokvanheel.neural.neat.genome.OutputNeuronGene;
+import nl.wdudokvanheel.neural.neat.service.GenomeBuilder;
+import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import nl.wdudokvanheel.neural.neat.service.SpeciationService;
 import nl.wdudokvanheel.neural.util.AbstractCreatureInterface;
 import org.junit.jupiter.api.DisplayName;
@@ -28,17 +30,13 @@ class SpeciationServiceTest {
     }
 
     private static Genome baseGenome(double w1, double w2) {
-        Genome g = new Genome();
-        g.addNeurons(
-                new InputNeuronGene(1, 0),
-                new InputNeuronGene(2, 0),
-                new OutputNeuronGene(3, 1)
-        );
-        g.addConnections(
-                new ConnectionGene(1, 1, 3, w1, true),
-                new ConnectionGene(2, 2, 3, w2, true)
-        );
-        return g;
+        GenomeBuilder b = new GenomeBuilder(new InnovationService());
+        InputNeuronGene in1 = b.addInputNeuron(0);
+        InputNeuronGene in2 = b.addInputNeuron(1);
+        OutputNeuronGene out = b.addOutputNeuron(0);
+        b.addConnection(in1, out).setWeight(w1);
+        b.addConnection(in2, out).setWeight(w2);
+        return b.getGenome();
     }
 
     private static NeatConfiguration cfg(double thresh) {

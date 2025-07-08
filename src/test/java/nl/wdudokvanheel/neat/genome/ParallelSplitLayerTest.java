@@ -2,6 +2,7 @@ package nl.wdudokvanheel.neat.genome;
 
 import nl.wdudokvanheel.neural.neat.genome.*;
 import nl.wdudokvanheel.neural.neat.mutation.AddNeuronMutation;
+import nl.wdudokvanheel.neural.neat.service.GenomeBuilder;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import org.junit.jupiter.api.Test;
 
@@ -19,28 +20,23 @@ class ParallelSplitLayerTest {
     @Test
     void twoIndependentSplitsShareIntermediateLayer() {
         InnovationService innovation = new InnovationService();
-        Genome g = new Genome();
+        GenomeBuilder b = new GenomeBuilder(innovation);
 
         // 2 inputs on layer 0
-        int in0 = innovation.getInputNodeInnovationId(0);
-        int in1 = innovation.getInputNodeInnovationId(1);
-        g.addNeurons(
-                new InputNeuronGene(in0, 0),
-                new InputNeuronGene(in1, 0)
-        );
+        InputNeuronGene in0 = b.addInputNeuron(0);
+        InputNeuronGene in1 = b.addInputNeuron(1);
 
         // 2 outputs on layer 1
-        int out0 = innovation.getOutputNodeInnovationId(0);
-        int out1 = innovation.getOutputNodeInnovationId(1);
-        g.addNeurons(
-                new OutputNeuronGene(out0, 1),
-                new OutputNeuronGene(out1, 1)
-        );
+        OutputNeuronGene out0 = b.addOutputNeuron(0);
+        OutputNeuronGene out1 = b.addOutputNeuron(1);
 
         // parallel connections
-        ConnectionGene c0 = new ConnectionGene(innovation.getConnectionInnovationId(in0, out0), in0, out0, 1.0);
-        ConnectionGene c1 = new ConnectionGene(innovation.getConnectionInnovationId(in1, out1), in1, out1, 1.0);
-        g.addConnections(c0, c1);
+        ConnectionGene c0 = b.addConnection(in0, out0);
+        ConnectionGene c1 = b.addConnection(in1, out1);
+        c0.setWeight(1.0);
+        c1.setWeight(1.0);
+
+        Genome g = b.getGenome();
 
         // ACT – split both connections deterministically
         AddNeuronMutation mut = new AddNeuronMutation(innovation);
@@ -66,28 +62,23 @@ class ParallelSplitLayerTest {
     @Test
     void hiddenNodesShareLayerAcrossGenerations() {
         InnovationService innovation = new InnovationService();
-        Genome g = new Genome();
+        GenomeBuilder b = new GenomeBuilder(innovation);
 
         // inputs (layer 0)
-        int in0 = innovation.getInputNodeInnovationId(0);
-        int in1 = innovation.getInputNodeInnovationId(1);
-        g.addNeurons(
-                new InputNeuronGene(in0, 0),
-                new InputNeuronGene(in1, 0)
-        );
+        InputNeuronGene in0 = b.addInputNeuron(0);
+        InputNeuronGene in1 = b.addInputNeuron(1);
 
         // outputs (layer 1)
-        int out0 = innovation.getOutputNodeInnovationId(0);
-        int out1 = innovation.getOutputNodeInnovationId(1);
-        g.addNeurons(
-                new OutputNeuronGene(out0, 1),
-                new OutputNeuronGene(out1, 1)
-        );
+        OutputNeuronGene out0 = b.addOutputNeuron(0);
+        OutputNeuronGene out1 = b.addOutputNeuron(1);
 
         // direct connections
-        ConnectionGene c0 = new ConnectionGene(innovation.getConnectionInnovationId(in0, out0), in0, out0, 1.0);
-        ConnectionGene c1 = new ConnectionGene(innovation.getConnectionInnovationId(in1, out1), in1, out1, 1.0);
-        g.addConnections(c0, c1);
+        ConnectionGene c0 = b.addConnection(in0, out0);
+        ConnectionGene c1 = b.addConnection(in1, out1);
+        c0.setWeight(1.0);
+        c1.setWeight(1.0);
+
+        Genome g = b.getGenome();
 
         AddNeuronMutation mut = new AddNeuronMutation(innovation);
 
@@ -99,8 +90,8 @@ class ParallelSplitLayerTest {
                 .filter(n -> n instanceof HiddenNeuronGene)
                 .findFirst().orElseThrow();
         assertEquals(1, hidden0.getLayer(), "first hidden node on layer 1");
-        assertEquals(2, g.getNeuronById(out0).getLayer(), "out0 shifted to layer 2");
-        assertEquals(2, g.getNeuronById(out1).getLayer(), "out1 already shifted to layer 2");
+        assertEquals(2, g.getNeuronById(out0.getInnovationId()).getLayer(), "out0 shifted to layer 2");
+        assertEquals(2, g.getNeuronById(out1.getInnovationId()).getLayer(), "out1 already shifted to layer 2");
 
         // *** Generation N+1: split second connection ***
         mut.replaceConnectionWithNeuron(g, c1);

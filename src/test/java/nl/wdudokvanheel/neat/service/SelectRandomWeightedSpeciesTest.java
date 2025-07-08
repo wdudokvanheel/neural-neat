@@ -1,8 +1,9 @@
 package nl.wdudokvanheel.neat.service;
 
 import nl.wdudokvanheel.neural.neat.Species;
-import nl.wdudokvanheel.neural.neat.genome.Genome;
 import nl.wdudokvanheel.neural.neat.service.CrossoverService;
+import nl.wdudokvanheel.neural.neat.service.GenomeBuilder;
+import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import nl.wdudokvanheel.neural.util.AbstractCreatureInterface;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ class SelectRandomWeightedSpeciesTest {
     /** Minimal creature that lets us set fitness directly. */
     private static class TestCreature extends AbstractCreatureInterface<TestCreature> {
         TestCreature(double fitness) {
-            super(new Genome());
+            super(new GenomeBuilder(new InnovationService()).getGenome());
             setFitness(fitness);
         }
     }

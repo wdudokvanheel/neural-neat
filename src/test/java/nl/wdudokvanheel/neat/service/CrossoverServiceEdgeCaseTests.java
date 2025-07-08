@@ -2,6 +2,8 @@ package nl.wdudokvanheel.neat.service;
 
 import nl.wdudokvanheel.neural.neat.genome.*;
 import nl.wdudokvanheel.neural.neat.service.CrossoverService;
+import nl.wdudokvanheel.neural.neat.service.GenomeBuilder;
+import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -16,33 +18,28 @@ class CrossoverServiceEdgeCaseTests {
 
     // ── Helpers ──────────────────────────────────────────────────────────────
     private Genome bothDisabledParents() {
-        Genome g = new Genome();
-        g.addNeurons(
-                new InputNeuronGene( 1, 0),
-                new HiddenNeuronGene(2, 1),
-                new OutputNeuronGene(3, 2)
-        );
-        g.addConnections(
-                new ConnectionGene(1, 1, 2,  0.8, false),
-                new ConnectionGene(2, 2, 3, -1.2, false)
-        );
-        return g;
+        InnovationService inv = new InnovationService();
+        GenomeBuilder b = new GenomeBuilder(inv);
+        InputNeuronGene in = b.addInputNeuron(0);
+        HiddenNeuronGene hid = b.addHiddenNeuron(0);
+        OutputNeuronGene out = b.addOutputNeuron(0);
+        b.addConnection(in, hid).setWeight(0.8);
+        b.addConnection(hid, out).setWeight(-1.2);
+        b.getGenome().getConnections().forEach(c -> c.setEnabled(false));
+        return b.getGenome();
     }
 
     private Genome weakParentWithExtraNeuron() {
-        Genome g = new Genome();
-        g.addNeurons(
-                new InputNeuronGene( 1, 0),
-                new HiddenNeuronGene(2, 1),
-                new HiddenNeuronGene(4, 1), // disjoint neuron
-                new OutputNeuronGene(3, 2)
-        );
-        g.addConnections(
-                new ConnectionGene(1, 1, 2, 0.5, true),           // matching
-                new ConnectionGene(2, 2, 3, 0.5, true),           // matching
-                new ConnectionGene(5, 4, 3, 0.9, true)            // disjoint
-        );
-        return g;
+        InnovationService inv = new InnovationService();
+        GenomeBuilder b = new GenomeBuilder(inv);
+        InputNeuronGene in = b.addInputNeuron(0);
+        HiddenNeuronGene h1 = b.addHiddenNeuron(0);
+        HiddenNeuronGene h2 = b.addHiddenNeuron(1); // disjoint neuron
+        OutputNeuronGene out = b.addOutputNeuron(0);
+        b.addConnection(in, h1).setWeight(0.5);
+        b.addConnection(h1, out).setWeight(0.5);
+        b.addConnection(h2, out).setWeight(0.9); // disjoint
+        return b.getGenome();
     }
     // ── Tests ────────────────────────────────────────────────────────────────
 
@@ -84,7 +81,10 @@ class CrossoverServiceEdgeCaseTests {
         assertNull(child.getNeuronById(4), "Disjoint neuron from weak parent leaked into child");
 
         // and the connection referencing that neuron must be absent
-        assertNull(child.getConnectionById(5), "Disjoint connection from weak parent leaked into child");
+        int disjointNeuron = weak.getHiddenNeurons().get(1).getInnovationId();
+        boolean leaked = child.getConnections().stream()
+                .anyMatch(c -> c.getSource() == disjointNeuron || c.getTarget() == disjointNeuron);
+        assertFalse(leaked, "Disjoint connection from weak parent leaked into child");
     }
 
     @Test

@@ -3,6 +3,7 @@ package nl.wdudokvanheel.neat.genome;
 import nl.wdudokvanheel.neural.neat.genome.*;
 import nl.wdudokvanheel.neural.neat.mutation.AddConnectionMutation;
 import nl.wdudokvanheel.neural.neat.mutation.AddNeuronMutation;
+import nl.wdudokvanheel.neural.neat.service.GenomeBuilder;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import nl.wdudokvanheel.neural.network.Network;
 import nl.wdudokvanheel.neural.network.neuron.Neuron;
@@ -21,12 +22,14 @@ class LayerManagementTest {
     @Test
     @DisplayName("Assigning layers when adding neurons & connections")
     void layerAssignmentFromGenome() {
-        Genome g = new Genome();
-        g.addNeuron(new InputNeuronGene(1, 0));
-        g.addNeuron(new HiddenNeuronGene(3, 1));
-        g.addNeuron(new OutputNeuronGene(2, 2));
-        g.addConnection(new ConnectionGene(1, 1, 3, 1.0));
-        g.addConnection(new ConnectionGene(2, 3, 2, 1.0));
+        InnovationService inv = new InnovationService();
+        GenomeBuilder b = new GenomeBuilder(inv);
+        InputNeuronGene in = b.addInputNeuron(0);
+        HiddenNeuronGene hid = b.addHiddenNeuron(0);
+        OutputNeuronGene out = b.addOutputNeuron(0);
+        b.addConnection(in, hid).setWeight(1.0);
+        b.addConnection(hid, out).setWeight(1.0);
+        Genome g = b.getGenome();
 
         Network net = new Network(g);
 
@@ -45,15 +48,14 @@ class LayerManagementTest {
     @DisplayName("Stacking hidden layers by consecutively splitting successor edge")
     void stackedLayersOnSuccessiveSplits() {
         InnovationService inv = new InnovationService();
-        Genome g = new Genome();
+        GenomeBuilder b = new GenomeBuilder(inv);
 
-        int in = inv.getInputNodeInnovationId(0);  // layer 0
-        int out = inv.getOutputNodeInnovationId(0); // layer 1
+        InputNeuronGene in = b.addInputNeuron(0);  // layer 0
+        OutputNeuronGene out = b.addOutputNeuron(0); // layer 1
 
-        g.addNeuron(new InputNeuronGene(in, 0));
-        g.addNeuron(new OutputNeuronGene(out, 1));
-        ConnectionGene firstEdge = new ConnectionGene(inv.getConnectionInnovationId(in, out), in, out, 1.0);
-        g.addConnection(firstEdge);
+        ConnectionGene firstEdge = b.addConnection(in, out);
+        firstEdge.setWeight(1.0);
+        Genome g = b.getGenome();
 
         AddNeuronMutation mut = new AddNeuronMutation(inv);
 
@@ -64,7 +66,7 @@ class LayerManagementTest {
         NeuronGene h1 = g.getNeurons().stream()
                 .filter(n -> n instanceof HiddenNeuronGene)
                 .findFirst().get();
-        ConnectionGene edgeH1toOut = g.getConnection(h1.getInnovationId(), out);
+        ConnectionGene edgeH1toOut = g.getConnection(h1.getInnovationId(), out.getInnovationId());
 
         // ── 2nd split: h1 → out (successor edge) ───────────────
         mut.replaceConnectionWithNeuron(g, edgeH1toOut);
@@ -78,7 +80,7 @@ class LayerManagementTest {
 
         assertEquals(List.of(1, 2), hiddenLayers,
                 "hidden nodes should occupy layers 1 and 2");
-        assertEquals(3, g.getNeuronById(out).getLayer(),
+        assertEquals(3, g.getNeuronById(out.getInnovationId()).getLayer(),
                 "output should now be on layer 3");
     }
 
@@ -86,47 +88,41 @@ class LayerManagementTest {
     @DisplayName("Shifting affects outputs that sit deeper than the split")
     void shiftMovesDeeperOutputs() {
         InnovationService inv = new InnovationService();
-        Genome g = new Genome();
+        GenomeBuilder b = new GenomeBuilder(inv);
 
-        int in = inv.getInputNodeInnovationId(0);   // L0
-        int hid = inv.getNeuronInnovationId(1);      // user-defined hidden at L2
-        int out = inv.getOutputNodeInnovationId(0);  // L1
+        InputNeuronGene in = b.addInputNeuron(0);   // L0
+        OutputNeuronGene out = b.addOutputNeuron(0);  // L1
+        HiddenNeuronGene hid = b.addHiddenNeuron(1);      // user-defined hidden at L2
+        hid.setLayer(2);              // builder defaults to 1
+        out.setLayer(1);              // addHiddenNeuron shifts outputs to 2
 
-        g.addNeuron(new InputNeuronGene(in, 0));
-        g.addNeuron(new HiddenNeuronGene(hid, 2));
-        g.addNeuron(new OutputNeuronGene(out, 1));
+        b.addConnection(in, out).setWeight(1.0);
+        b.addConnection(out, hid).setWeight(1.0);         // output → deeper hidden connection (feed-forward)
 
-        g.addConnections(
-                connect(inv, in, out),
-                connect(inv, out, hid)         // output → deeper hidden connection (feed-forward)
-        );
+        Genome g = b.getGenome();
 
         // split input→output (gap must be created; both output & deeper hidden shift)
         new AddNeuronMutation(inv)
-                .replaceConnectionWithNeuron(g, g.getConnection(in, out));
+                .replaceConnectionWithNeuron(g, g.getConnection(in.getInnovationId(), out.getInnovationId()));
 
-        assertEquals(2, g.getNeuronById(out).getLayer(), "output shifted from 1 → 2");
-        assertEquals(3, g.getNeuronById(hid).getLayer(), "deep hidden shifted from 2 → 3");
+        assertEquals(2, g.getNeuronById(out.getInnovationId()).getLayer(), "output shifted from 1 → 2");
+        assertEquals(3, g.getNeuronById(hid.getInnovationId()).getLayer(), "deep hidden shifted from 2 → 3");
     }
 
     @Test
     @DisplayName("AddConnectionMutation respects layer order")
     void addConnectionRespectsLayers() {
         InnovationService inv = new InnovationService();
-        Genome g = new Genome();
+        GenomeBuilder b = new GenomeBuilder(inv);
 
         // minimal 3-layer net (0->1->2)
-        int in = inv.getInputNodeInnovationId(0);
-        int hid = inv.getNeuronInnovationId(1);
-        int out = inv.getOutputNodeInnovationId(0);
+        InputNeuronGene in = b.addInputNeuron(0);
+        HiddenNeuronGene hid = b.addHiddenNeuron(1);
+        OutputNeuronGene out = b.addOutputNeuron(0);
 
-        g.addNeuron(new InputNeuronGene(in, 0));
-        g.addNeuron(new HiddenNeuronGene(hid, 1));
-        g.addNeuron(new OutputNeuronGene(out, 2));
-        g.addConnections(
-                connect(inv, in, hid),
-                connect(inv, hid, out)
-        );
+        b.addConnection(in, hid).setWeight(1.0);
+        b.addConnection(hid, out).setWeight(1.0);
+        Genome g = b.getGenome();
 
         // attempt to add many random connections
         AddConnectionMutation addMut = new AddConnectionMutation(inv);
@@ -147,19 +143,18 @@ class LayerManagementTest {
     @DisplayName("getLayers equals deepest neuron layer")
     void getLayersMatchesMaxLayer() {
         InnovationService inv = new InnovationService();
-        Genome g = new Genome();
+        GenomeBuilder b = new GenomeBuilder(inv);
 
         // input 0, output 1
-        int in = inv.getInputNodeInnovationId(0);
-        int out = inv.getOutputNodeInnovationId(0);
-        g.addNeuron(new InputNeuronGene(in, 0));
-        g.addNeuron(new OutputNeuronGene(out, 1));
-        g.addConnection(connect(inv, in, out));
+        InputNeuronGene in = b.addInputNeuron(0);
+        OutputNeuronGene out = b.addOutputNeuron(0);
+        b.addConnection(in, out).setWeight(1.0);
+        Genome g = b.getGenome();
 
         // split five times to deepen network
         AddNeuronMutation mut = new AddNeuronMutation(inv);
         for (int i = 0; i < 5; i++) {
-            mut.replaceConnectionWithNeuron(g, g.getConnection(in, out));
+            mut.replaceConnectionWithNeuron(g, g.getConnection(in.getInnovationId(), out.getInnovationId()));
         }
 
         Network net = new Network(g);
@@ -173,23 +168,17 @@ class LayerManagementTest {
     @DisplayName("Network.clone() keeps layers and connections")
     void cloneKeepsLayersAndConnections() {
         InnovationService inv = new InnovationService();
-        Genome g = new Genome();
+        GenomeBuilder b = new GenomeBuilder(inv);
 
-        int in = inv.getInputNodeInnovationId(0);
-        int hid1 = inv.getNeuronInnovationId(1);
-        int hid2 = inv.getNeuronInnovationId(2);
-        int out = inv.getOutputNodeInnovationId(0);
+        InputNeuronGene in = b.addInputNeuron(0);
+        HiddenNeuronGene hid1 = b.addHiddenNeuron(1);
+        HiddenNeuronGene hid2 = b.addHiddenNeuron(2);
+        OutputNeuronGene out = b.addOutputNeuron(0);
 
-        g.addNeuron(new InputNeuronGene(in, 0));
-        g.addNeuron(new HiddenNeuronGene(hid1, 1));
-        g.addNeuron(new HiddenNeuronGene(hid2, 2));
-        g.addNeuron(new OutputNeuronGene(out, 3));
-
-        g.addConnections(
-                connect(inv, in, hid1),
-                connect(inv, hid1, hid2),
-                connect(inv, hid2, out)
-        );
+        b.addConnection(in, hid1).setWeight(1.0);
+        b.addConnection(hid1, hid2).setWeight(1.0);
+        b.addConnection(hid2, out).setWeight(1.0);
+        Genome g = b.getGenome();
 
         Network n1 = new Network(g);
         Network n2 = n1.clone();
@@ -227,22 +216,17 @@ class LayerManagementTest {
 
         for (int[] order : orders) {
             InnovationService inv = new InnovationService();
-            Genome g = new Genome();
+            GenomeBuilder b = new GenomeBuilder(inv);
 
-            int[] in = {inv.getInputNodeInnovationId(0),
-                    inv.getInputNodeInnovationId(1)};
-            int[] out = {inv.getOutputNodeInnovationId(0),
-                    inv.getOutputNodeInnovationId(1)};
+            InputNeuronGene[] in = {b.addInputNeuron(0), b.addInputNeuron(1)};
+            OutputNeuronGene[] out = {b.addOutputNeuron(0), b.addOutputNeuron(1)};
 
-            g.addNeuron(new InputNeuronGene(in[0], 0));
-            g.addNeuron(new InputNeuronGene(in[1], 0));
-            g.addNeuron(new OutputNeuronGene(out[0], 1));
-            g.addNeuron(new OutputNeuronGene(out[1], 1));
             ConnectionGene[] c = {
-                    connect(inv, in[0], out[0]),
-                    connect(inv, in[1], out[1])
+                    b.addConnection(in[0], out[0]),
+                    b.addConnection(in[1], out[1])
             };
-            g.addConnections(c);
+            for (ConnectionGene conn : c) conn.setWeight(1.0);
+            Genome g = b.getGenome();
 
             AddNeuronMutation mut = new AddNeuronMutation(inv);
             // perform two splits in specified order
@@ -264,24 +248,20 @@ class LayerManagementTest {
 
         for (int iter = 0; iter < ITERATIONS; iter++) {
             InnovationService inv = new InnovationService();
-            Genome g = new Genome();
+            GenomeBuilder b = new GenomeBuilder(inv);
 
             // 2-input, 2-output starter
-            int in0 = inv.getInputNodeInnovationId(0);
-            int in1 = inv.getInputNodeInnovationId(1);
-            int out0 = inv.getOutputNodeInnovationId(0);
-            int out1 = inv.getOutputNodeInnovationId(1);
+            InputNeuronGene in0 = b.addInputNeuron(0);
+            InputNeuronGene in1 = b.addInputNeuron(1);
+            OutputNeuronGene out0 = b.addOutputNeuron(0);
+            OutputNeuronGene out1 = b.addOutputNeuron(1);
 
-            g.addNeurons(
-                    new InputNeuronGene(in0, 0),
-                    new InputNeuronGene(in1, 0),
-                    new OutputNeuronGene(out0, 1),
-                    new OutputNeuronGene(out1, 1)
-            );
-            g.addConnections(
-                    connect(inv, in0, out0),
-                    connect(inv, in1, out1)
-            );
+            ConnectionGene c0 = b.addConnection(in0, out0);
+            c0.setWeight(1.0);
+            ConnectionGene c1 = b.addConnection(in1, out1);
+            c1.setWeight(1.0);
+
+            Genome g = b.getGenome();
 
             AddNeuronMutation addNeu = new AddNeuronMutation(inv);
             AddConnectionMutation addConn = new AddConnectionMutation(inv);
@@ -308,13 +288,6 @@ class LayerManagementTest {
                         () -> "Backward edge found after fuzz (" + src.getLayer() + "→" + tgt.getLayer() + ")");
             }
         }
-    }
-
-    /**
-     * Convenience: create a weight-1 connection with a unique innovation-id.
-     */
-    private static ConnectionGene connect(InnovationService inv, int src, int tgt) {
-        return new ConnectionGene(inv.getConnectionInnovationId(src, tgt), src, tgt, 1.0);
     }
 
     /**

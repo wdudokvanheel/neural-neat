@@ -1,7 +1,12 @@
 package nl.wdudokvanheel.neat.service;
 
-import nl.wdudokvanheel.neural.neat.genome.*;
+import nl.wdudokvanheel.neural.neat.genome.Genome;
+import nl.wdudokvanheel.neural.neat.genome.HiddenNeuronGene;
+import nl.wdudokvanheel.neural.neat.genome.InputNeuronGene;
+import nl.wdudokvanheel.neural.neat.genome.OutputNeuronGene;
+import nl.wdudokvanheel.neural.neat.service.GenomeBuilder;
 import nl.wdudokvanheel.neural.neat.service.GenomeComparison;
+import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -20,32 +25,42 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class GenomeComparisonTest {
     private static Genome baseGenome() {
-        Genome g = new Genome();
-        g.addNeurons(
-                new InputNeuronGene(1, 0),
-                new InputNeuronGene(2, 0),
-                new OutputNeuronGene(3, 1)
-        );
-        g.addConnections(
-                new ConnectionGene(1, 1, 3, 0.5),
-                new ConnectionGene(2, 2, 3, -0.5)
-        );
-        return g;
+        InnovationService inv = new InnovationService();
+        GenomeBuilder b = new GenomeBuilder(inv);
+        InputNeuronGene in1 = b.addInputNeuron(0);
+        InputNeuronGene in2 = b.addInputNeuron(1);
+        OutputNeuronGene out = b.addOutputNeuron(0);
+        b.addConnection(in1, out).setWeight(0.5);
+        b.addConnection(in2, out).setWeight(-0.5);
+        return b.getGenome();
     }
 
     private static Genome genomeWithExcess() {
-        Genome g = baseGenome().clone();
-        // add hidden neuron so conn #4 is valid
-        g.addNeuron(new HiddenNeuronGene(4, 1));
-        g.addConnection(new ConnectionGene(4, 4, 3, 1.0)); // excess (highest id)
-        return g;
+        Genome base = baseGenome();
+        InnovationService inv = new InnovationService();
+        GenomeBuilder b = new GenomeBuilder(inv);
+        // recreate base to use same IDs
+        InputNeuronGene in1 = b.addInputNeuron(0);
+        InputNeuronGene in2 = b.addInputNeuron(1);
+        OutputNeuronGene out = b.addOutputNeuron(0);
+        b.addConnection(in1, out).setWeight(0.5);
+        b.addConnection(in2, out).setWeight(-0.5);
+        HiddenNeuronGene hid = b.addHiddenNeuron(0);
+        b.addConnection(hid, out).setWeight(1.0); // excess
+        return b.getGenome();
     }
 
     private static Genome genomeWithDisjoint() {
-        Genome g = baseGenome().clone();
-        g.addNeuron(new HiddenNeuronGene(4, 1));
-        g.addConnection(new ConnectionGene(3, 1, 4, 1.0)); // disjoint (gap id=3)
-        return g;
+        InnovationService inv = new InnovationService();
+        GenomeBuilder b = new GenomeBuilder(inv);
+        InputNeuronGene in1 = b.addInputNeuron(0);
+        InputNeuronGene in2 = b.addInputNeuron(1);
+        OutputNeuronGene out = b.addOutputNeuron(0);
+        b.addConnection(in1, out).setWeight(0.5);
+        b.addConnection(in2, out).setWeight(-0.5);
+        HiddenNeuronGene hid = b.addHiddenNeuron(0);
+        b.addConnection(in1, hid).setWeight(1.0); // disjoint connection
+        return b.getGenome();
     }
 
     @Test
@@ -73,7 +88,8 @@ class GenomeComparisonTest {
         // identical except conn1 weight differs
         Genome A = baseGenome();
         Genome B = baseGenome().clone();
-        B.getConnectionById(1).setWeight(0.1);   // change weight by 0.4
+        int connId = A.getConnections().getFirst().getInnovationId();
+        B.getConnectionById(connId).setWeight(0.1);   // change weight by 0.4
 
         double expectedAverage = 0.2;              // only 1 matching gene differs
         double c3 = 0.5;                           // default weight coefficient

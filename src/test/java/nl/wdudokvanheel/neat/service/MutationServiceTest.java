@@ -4,6 +4,7 @@ import nl.wdudokvanheel.neural.neat.NeatConfiguration;
 import nl.wdudokvanheel.neural.neat.NeatContext;
 import nl.wdudokvanheel.neural.neat.genome.*;
 import nl.wdudokvanheel.neural.neat.mutation.*;
+import nl.wdudokvanheel.neural.neat.service.GenomeBuilder;
 import nl.wdudokvanheel.neural.neat.service.InnovationService;
 import nl.wdudokvanheel.neural.neat.service.MutationService;
 import org.junit.jupiter.api.DisplayName;
@@ -21,54 +22,37 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class MutationServiceTest {
 
     private static Genome minimalGenome() {
-        Genome g = new Genome();
-        g.addNeurons(
-                new InputNeuronGene(1, 0),
-                new OutputNeuronGene(2, 1)
-        );
-        g.addConnection(new ConnectionGene(1, 1, 2, 0.1, true));
-        return g;
+        GenomeBuilder b = new GenomeBuilder(new InnovationService());
+        InputNeuronGene in = b.addInputNeuron(0);
+        OutputNeuronGene out = b.addOutputNeuron(0);
+        b.addConnection(in, out).setWeight(0.1);
+        return b.getGenome();
     }
 
     private static Genome staticRoomyGenome() {             // 2 inputs, 1 hidden, 1 output
-        Genome g = new Genome();
-        g.addNeurons(
-                new InputNeuronGene(1, 0),
-                new InputNeuronGene(2, 0),
-                new HiddenNeuronGene(3, 1),
-                new OutputNeuronGene(4, 2)
-        );
-        g.addConnections(
-                new ConnectionGene(1, 1, 3, 0.2, true),   // so AddNeuron can split
-                new ConnectionGene(2, 2, 3, 0.2, true),
-                new ConnectionGene(3, 3, 4, 0.2, true)
-        );
-        return g;
+        GenomeBuilder b = new GenomeBuilder(new InnovationService());
+        InputNeuronGene in1 = b.addInputNeuron(0);
+        InputNeuronGene in2 = b.addInputNeuron(1);
+        HiddenNeuronGene hid = b.addHiddenNeuron(0);
+        OutputNeuronGene out = b.addOutputNeuron(0);
+        b.addConnection(in1, hid).setWeight(0.2);   // so AddNeuron can split
+        b.addConnection(in2, hid).setWeight(0.2);
+        b.addConnection(hid, out).setWeight(0.2);
+        return b.getGenome();
     }
 
     private static Genome roomyGenome(InnovationService inv) {   // 2 inputs, 1 hidden, 1 output
-        Genome g = new Genome();
+        GenomeBuilder b = new GenomeBuilder(inv);
 
-        int in1 = inv.getInputNodeInnovationId(0);          // layer 0
-        int in2 = inv.getInputNodeInnovationId(1);          // layer 0
-        int hid = inv.getNeuronInnovationId(42);            // layer 1 (arbitrary “split-key”)
-        int out = inv.getOutputNodeInnovationId(0);         // layer 2
+        InputNeuronGene in1 = b.addInputNeuron(0);
+        InputNeuronGene in2 = b.addInputNeuron(1);
+        HiddenNeuronGene hid = b.addHiddenNeuron(42);
+        OutputNeuronGene out = b.addOutputNeuron(0);
 
-        g.addNeurons(
-                new InputNeuronGene(in1, 0),
-                new InputNeuronGene(in2, 0),
-                new HiddenNeuronGene(hid, 1),
-                new OutputNeuronGene(out, 2)
-        );
-
-        g.addConnections(
-                // edges the Add-Neuron mutation can split
-                new ConnectionGene(inv.getConnectionInnovationId(in1, hid), in1, hid, 0.2, true),
-                new ConnectionGene(inv.getConnectionInnovationId(in2, hid), in2, hid, 0.2, true),
-                // downstream edge
-                new ConnectionGene(inv.getConnectionInnovationId(hid, out), hid, out, 0.2, true)
-        );
-        return g;
+        b.addConnection(in1, hid).setWeight(0.2);   // edges the Add-Neuron mutation can split
+        b.addConnection(in2, hid).setWeight(0.2);
+        b.addConnection(hid, out).setWeight(0.2);   // downstream edge
+        return b.getGenome();
     }
 
     private static NeatConfiguration config(boolean multiple) {
@@ -162,10 +146,11 @@ class MutationServiceTest {
         Genome g = staticRoomyGenome();
 
         List<Double> delta = new ArrayList<>();
+        int connId = g.getConnections().getFirst().getInnovationId();
         for (int i = 0; i < 10_000; i++) {
-            double before = g.getConnectionById(1).getWeight();
+            double before = g.getConnectionById(connId).getWeight();
             mut.mutate(g);
-            double after = g.getConnectionById(1).getWeight();
+            double after = g.getConnectionById(connId).getWeight();
             delta.add(after - before);
         }
         double variance = delta.stream().mapToDouble(d -> d * d).sum() / delta.size();
@@ -202,7 +187,7 @@ class MutationServiceTest {
     void addNeuronIdempotent() {
         InnovationService inv = new InnovationService();
         Genome g = staticRoomyGenome();
-        ConnectionGene toSplit = g.getConnectionById(1);
+        ConnectionGene toSplit = g.getConnections().getFirst();
 
         AddNeuronMutation mut = new AddNeuronMutation(inv);
         mut.replaceConnectionWithNeuron(g, toSplit);  // first time
