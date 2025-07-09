@@ -1,8 +1,8 @@
 # NEAT Java Implementation
 
-This repository provides a pure Java implementation of NEAT (NeuroEvolution of Augmenting Topologies) The codebase
-implements the core NEAT algorithms and data structures, including genome representation, innovation tracking, topology
-mutations, speciation, and evolutionary loops. It also contains a basic neural network implementation to turn genomes
+This repository provides a pure Java implementation of the NEAT algorithm. The codebase implements the core NEAT
+algorithms and data structures, including genome representation, innovation tracking, topology mutations, speciation,
+and evolutionary loops. It also contains a basic neural network implementation to turn genomes
 into an actual runnable neural network.
 
 ## What is NEAT?
@@ -21,31 +21,41 @@ Miikkulainen in 2002.
 
 ## Highlights and Technical Details
 
-* **Highly Configurable**: Expose all NEAT parameters via NeatConfiguration (see [Configuration](docs/configuration.md) docs)
+* **Highly Configurable**: Expose all NEAT parameters for your experimentation (
+  see [Configuration](docs/configuration.md)
+  docs)
 * **Speciation**: Implements distance metric with excess, disjoint, and weight-difference terms; adjustable thresholds.
-* **MutationService**: Supports single or multiple mutations per genome; configurable probabilities for each operator.
-* **CrossoverService**: Aligns matching genes by innovation IDs, handles excess/disjoint genes, respects disable flags,
+* **Mutations**: Supports single or multiple mutations per genome; configurable probabilities for each operator.
+* **Crossover**: Aligns matching genes by innovation IDs, handles excess/disjoint genes, respects disable flags,
   and supports interspecies crossover.
-* **Network Serialization**: `Network` builds from a `Genome`, supports cloning, forward evaluation with sigmoid
-  activation, and caching for repeated reads.
-* **Deterministic InnovationService**: Assigns unique, monotonically increasing IDs for neurons and connections, with
+* **Deterministic Innovation IDs**: Assigns unique, monotonically increasing IDs for neurons and connections, with
   thread-safe maps and tables.
-* **Comprehensive Tests**: Over 50 JUnit tests covering unit properties, fuzz testing, edge cases, and regression
+* **Neural Networks**: `Network` builds a neural network from a `Genome`, supports cloning, forward evaluation with
+  sigmoid activation, and caching for repeated reads.
+* **Serialization** Save and load your best performing genomes or use them as a starter for your next evolution.
+* **Comprehensive Tests**: Over 50 unit tests covering unit properties, fuzz testing, edge cases, and regression
   scenarios.
 
 ## Examples
 
+### [Lunar Lander](https://github.com/wdudokvanheel/neural-neat-lunar)
+
+In this project the NEAT library tries to find a neural network that can fly and safely land a lunar lander, while
+avoiding a big randomized mountain. All in true 80s arcade style graphics.
+
+![Neat Lunar screenshot](docs/lunar-screenshot.png)
+
 ### [Flappy Bird](https://github.com/wdudokvanheel/neural-neat-flappy)
 
-This project is a more extensive example with a graphical interface, visualizing the learning capabilities of the
-algorithm. It tries to learn a bird how to navigate an always changing *Flappy Bird* level.
+This project is a simple example of NEAT in action, visualizing the learning capabilities of the algorithm. It tries to
+learn a bird how to navigate an always changing *Flappy Bird* level.
 
 ![Neat Flappy screenshot](docs/flappy-screenshot.png)
 
 ### [XOR Benchmark](https://github.com/wdudokvanheel/neural-neat-xor)
 
 Check out this project for a minimal example on how to utilize the library. Median generations-to-solve hovers around
-36 generations with a >99% solve rate.
+19 generations with a >99.9% solve rate.
 
 ```
 Statistics for 1000/1000 (100.00%) successful runs:
@@ -96,14 +106,13 @@ JAR yourself if you prefer.
 ## Project Structure
 
 * **neat**: High-level evolution classes (`NeatEvolution`, `NeatContext`, `Neat Configuration`, `Creature`, `Species`).
-  * **neat.genome**: Models to represent the Genome (`Genome`, `NeuronGene`, `ConnectionGene`).
-  * **neat.service**: Algorithmic services & logic (`InnovationService`, `MutationService`,
-    `CrossoverService`, `SpeciationService`, `GenomeComparison`).
-  * **neat.mutation**: Mutation operators (`AddNeuronMutation`, `AddConnectionMutation`,
-    `ToggleConnectionMutation`, various weight mutations).
+    * **neat.genome**: Models to represent the Genome (`Genome`, `NeuronGene`, `ConnectionGene`).
+    * **neat.service**: Algorithmic services & logic (`InnovationService`, `MutationService`,
+      `CrossoverService`, `SpeciationService`, `GenomeComparison`).
+    * **neat.mutation**: Mutation operators (`AddNeuronMutation`, `AddConnectionMutation`,
+      `ToggleConnectionMutation`, various weight mutations).
 * **network**: Simple neural network implementation to convert and run a genome
 * **util**: Debug & helper classes
-
 
 Test suites are provided under `src/test/java`, covering:
 
