@@ -53,7 +53,7 @@ public class CrossoverService<Creature extends CreatureInterface<Creature>> {
         }
 
         for (int i = 0; i < speciesCount; i++) {
-            Species species = sorted.get(i);
+            Species<Creature> species = sorted.get(i);
             int desired = quota[i];
             int asexual = (int) Math.round(desired * context.configuration.reproduceWithoutCrossover);
             int sexual = desired - asexual;
@@ -70,7 +70,7 @@ public class CrossoverService<Creature extends CreatureInterface<Creature>> {
         }
 
         while (creatures.size() < population) {
-            Species fallback = sorted.get(random.nextInt(sorted.size()));
+            Species<Creature> fallback = sorted.get(random.nextInt(sorted.size()));
             creatures.addAll(createOffspringWithoutCrossover(context, fallback, 1));
         }
 
@@ -124,7 +124,7 @@ public class CrossoverService<Creature extends CreatureInterface<Creature>> {
 
         if (totalFitness <= 0) {
             if (species.get(0) != exclude) {
-                return species.get(0);
+                return species.getFirst();
             } else if (species.size() > 1) {
                 return species.get(1);
             } else {
@@ -184,13 +184,13 @@ public class CrossoverService<Creature extends CreatureInterface<Creature>> {
     }
 
     private Creature selectRandomCreature(Species<Creature> species, Creature exclude) {
-        ArrayList<Creature> list = new ArrayList(species.getCreatures());
+        ArrayList<Creature> list = new ArrayList<>(species.getCreatures());
         list.remove(exclude);
         return list.get(random.nextInt(list.size()));
     }
 
     private Creature selectRandomCreature(List<Creature> creatures, Creature exclude) {
-        ArrayList<Creature> list = new ArrayList(creatures);
+        ArrayList<Creature> list = new ArrayList<>(creatures);
         list.remove(exclude);
         return list.get(random.nextInt(list.size()));
     }
@@ -212,11 +212,11 @@ public class CrossoverService<Creature extends CreatureInterface<Creature>> {
 
         if (totalFitness <= 0) {
             if (species.getCreatures().get(0) != exclude) {
-                return species.getCreatures().get(0);
+                return species.getCreatures().getFirst();
             } else if (species.getCreatures().size() > 1) {
                 return species.getCreatures().get(1);
             } else {
-                return species.getCreatures().get(0);
+                return species.getCreatures().getFirst();
             }
         }
         double target = random.nextDouble(totalFitness);
