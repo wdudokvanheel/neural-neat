@@ -54,16 +54,17 @@ learn a bird how to navigate an always changing *Flappy Bird* level.
 
 ### [XOR Benchmark](https://github.com/wdudokvanheel/neural-neat-xor)
 
-Check out this project for a minimal example on how to utilize the library. Median generations-to-solve hovers around
-19 generations with a >99.9% solve rate.
+Check out this project for a minimal example on how to utilize the library. Average generations-to-solve hovers around
+20 generations with a 100% solve rate.
 
 ```
-Statistics for 1000/1000 (100.00%) successful runs:
-  Average generations: 19.83
-  Min generations: 4
-  Max generations: 47
-  Median generations: 19.00
-  StdDev generations: 5.57
+Statistics for 100k runs:
+    Success rate:           100.00%
+    Min generations:        2
+    Max generations:        130
+    Average generations:    19.91
+    Median generations:     19.00
+    StdDev generations:     5.75
 ```
 
 ## Getting Started
